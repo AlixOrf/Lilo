@@ -1,0 +1,81 @@
+{
+  "kind": "collectionType",
+  "collectionName": "moods",
+  "info": {
+    "singularName": "mood",
+    "pluralName": "moods",
+    "displayName": "Mood"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Mood": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "Super Happy",
+        "Happy",
+        "Neutre",
+        "Depressed",
+        "Super Depressed"
+      ]
+    },
+    "Emotion": {
+      "type": "customField",
+      "customField": "plugin::multi-select.multi-select",
+      "default": "[]",
+      "options": [
+        "Excité",
+        "Détendu",
+        "Fier",
+        "Optimiste",
+        "Heureux",
+        "Enthousiaste",
+        "Calme",
+        "Reconnaissant",
+        "Déprimé",
+        "Solitaire",
+        "Anxieux",
+        "Triste",
+        "En Colère",
+        "Agacé",
+        "Fatigué",
+        "Stressé",
+        "Ennuyé",
+        "Neutre"
+      ]
+    },
+    "Boisson": {
+      "type": "enumeration",
+      "enum": [
+        "Eau",
+        "Café",
+        "Thé",
+        "Soda",
+        "Sirop",
+        "Jus"
+      ]
+    },
+    "Journal": {
+      "type": "text"
+    },
+    "Image": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "utilisateur": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::utilisateur.utilisateur",
+      "inversedBy": "moods"
+    }
+  }
+}
