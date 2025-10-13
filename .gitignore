@@ -4,6 +4,13 @@
 /node_modules
 /.pnp
 .pnp.js
+*.class
+*.o
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+vendor
 
 # testing
 /coverage
