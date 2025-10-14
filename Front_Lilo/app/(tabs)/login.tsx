@@ -11,55 +11,67 @@ import {
   Switch,
 } from 'react-native';
 
-const API_URL = 'http://localhost:1337/api/utilisateurs';
+const API_URL = 'http://10.109.253.232:1337/api'; // Remplace par ton IP
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
-      return;
-    }
+  if (!email || !password) {
+    Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+    return;
+  }
 
-    if (!acceptedTerms) {
-      Alert.alert('Conditions requises', 'Vous devez accepter les conditions d’utilisation.');
-      return;
-    }
+  if (!acceptedTerms) {
+    Alert.alert('Conditions requises', 'Vous devez accepter les conditions d’utilisation.');
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_URL}/auth/local`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+  setLoading(true);
+  try {
+    const response = await fetch(`${API_URL}/utilisateurs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: {
+          Mail: email,
+          Mot_de_passe: password,
         },
-        body: JSON.stringify({
-          identifier: email,
-          password: password,
-        }),
-      });
+      }),
+    });
 
-      const data = await response.json();
-      setLoading(false);
+    const data = await response.json();
+    console.log('Réponse serveur :', data);
+    setLoading(false);
 
-      if (!response.ok) {
-        Alert.alert('Erreur', data.error?.message || 'Identifiants incorrects.');
-        return;
-      }
-
-      Alert.alert('Bienvenue', `Bonjour ${data.user.username} 👋`);
-      // navigation.navigate('Home', { user: data.user });
-
-    } catch (error) {
-      setLoading(false);
-      Alert.alert('Erreur', 'Impossible de contacter le serveur.');
-      console.error(error);
+    if (!response.ok) {
+      Alert.alert('Erreur', data.error?.message || 'Identifiants incorrects.');
+      return;
     }
-  };
+
+    const utilisateur = data.data?.[0];
+    const nom = utilisateur?.Nom || utilisateur?.Mail || 'Utilisateur';
+
+    Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
+      {
+        text: 'Continuer',
+      },
+    ]);
+
+  } catch (error) {
+    setLoading(false);
+    Alert.alert('Erreur', 'Impossible de contacter le serveur.');
+    console.error(error);
+  }
+};
+
+
 
   return (
     <View style={styles.container}>
@@ -78,15 +90,24 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
       />
 
-      <TextInput
-        placeholder="Mot de passe"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Mot de passe"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          style={styles.passwordInput}
+        />
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          style={styles.showPasswordButton}
+        >
+          <Text style={styles.showPasswordText}>
+            {showPassword ? 'Cacher' : 'Afficher'}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* ✅ Case à cocher des conditions */}
       <View style={styles.checkboxContainer}>
         <Switch
           value={acceptedTerms}
@@ -111,7 +132,6 @@ export default function LoginScreen({ navigation }) {
         )}
       </TouchableOpacity>
 
-      {/* ✅ Footer centré */}
       <Text style={styles.footerText}>
         Pas encore de compte ?{'\n'}Demandez à votre manager de vous en créer un !
       </Text>
@@ -150,6 +170,30 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#334155',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#b6b0ae',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    color: '#262524',
+    fontSize: 16,
+    paddingVertical: 12,
+  },
+  showPasswordButton: {
+    paddingLeft: 10,
+  },
+  showPasswordText: {
+    color: '#262524',
+    fontWeight: '500',
   },
   checkboxContainer: {
     flexDirection: 'row',

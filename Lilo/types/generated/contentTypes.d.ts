@@ -677,7 +677,7 @@ export interface ApiUtilisateurUtilisateur extends Struct.CollectionTypeSchema {
     manager: Schema.Attribute.Relation<'manyToOne', 'api::manager.manager'>;
     moods: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'>;
     Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
-    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
