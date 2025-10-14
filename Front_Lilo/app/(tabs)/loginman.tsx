@@ -13,7 +13,7 @@ import {
 
 const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
 
-export default function LoginScreen({ navigation }) {
+export default function ManagerLogin({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,27 +32,36 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
-    try {
-      const response = await fetch(
-        `${API_URL}/utilisateurs?filters[Mail][$eq]=${encodeURIComponent(email)}&filters[Mot_de_passe][$eq]=${encodeURIComponent(password)}`
-      );
 
+    try {
+      // On récupère l'utilisateur par email
+      const response = await fetch(
+        `${API_URL}/managers?filters[Mail][$eq]=${encodeURIComponent(email)}`
+      );
       const data = await response.json();
-      console.log('Réponse serveur :', data);
       setLoading(false);
 
-      if (data.data && data.data.length > 0) {
-        const utilisateur = data.data[0];
-        const nom = utilisateur.attributes?.Nom || utilisateur.attributes?.Mail || 'Utilisateur';
-
-        Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
-          {
-            text: 'Continuer',
-          },
-        ]);
-      } else {
-        Alert.alert('Erreur', 'Identifiants incorrects.');
+      if (!data.data || data.data.length === 0) {
+        Alert.alert('Erreur', 'Aucun manager trouvé avec cet e-mail.');
+        return;
       }
+
+      const utilisateur = data.data[0];
+
+      // Vérification du mot de passe
+      if (utilisateur.Mot_de_passe !== password) {
+        Alert.alert('Erreur', 'Mot de passe incorrect.');
+        return;
+      }
+
+      const nom = utilisateur.Nom || utilisateur.Mail || 'Manager';
+
+      // Pop-up et redirection vers Home
+      Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
+        {
+          text: 'Continuer',
+        },
+      ]);
     } catch (error) {
       setLoading(false);
       console.error(error);
@@ -63,10 +72,10 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: 'https://cdn-icons-png.flaticon.com/512/5087/5087579.png' }}
+        source={require('./assets/Super_Happy.png')} 
         style={styles.logo}
       />
-      <Text style={styles.title}>Connexion</Text>
+      <Text style={styles.title}>Connexion Managers</Text>
 
       <TextInput
         placeholder="Email"
@@ -89,9 +98,7 @@ export default function LoginScreen({ navigation }) {
           onPress={() => setShowPassword(!showPassword)}
           style={styles.showPasswordButton}
         >
-          <Text style={styles.showPasswordText}>
-            {showPassword ? 'Cacher' : 'Afficher'}
-          </Text>
+          <Text style={styles.showPasswordText}>{showPassword ? 'Cacher' : 'Afficher'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -112,16 +119,10 @@ export default function LoginScreen({ navigation }) {
         onPress={handleLogin}
         disabled={loading || !acceptedTerms}
       >
-        {loading ? (
-          <ActivityIndicator color="#262524" />
-        ) : (
-          <Text style={styles.buttonText}>Se connecter</Text>
-        )}
+        {loading ? <ActivityIndicator color="#262524" /> : <Text style={styles.buttonText}>Se connecter</Text>}
       </TouchableOpacity>
 
-      <Text style={styles.footerText}>
-        Pas encore de compte ?{'\n'}Demandez à votre manager de vous en créer un !
-      </Text>
+      <Text style={styles.footerText}>Vous êtes sur la page de connexion managers !</Text>
     </View>
   );
 }
@@ -135,10 +136,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logo: {
-    width: 100,
+    width: 200,
     height: 100,
-    marginBottom: 30,
-    tintColor: '#76efa3',
+    marginBottom: 10,
+    resizeMode: 'contain',
   },
   title: {
     color: '#262524',

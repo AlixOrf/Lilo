@@ -63,7 +63,7 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: 'https://cdn-icons-png.flaticon.com/512/5087/5087579.png' }}
+        source={require('./assets/Super_Happy.png')} 
         style={styles.logo}
       />
       <Text style={styles.title}>Connexion</Text>
@@ -135,10 +135,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logo: {
-    width: 100,
+    width: 200,
     height: 100,
     marginBottom: 30,
-    tintColor: '#76efa3',
+    resizeMode: 'contain',
   },
   title: {
     color: '#262524',
