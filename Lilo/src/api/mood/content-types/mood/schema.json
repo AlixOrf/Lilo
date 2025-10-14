@@ -15,11 +15,11 @@
       "type": "enumeration",
       "required": true,
       "enum": [
-        "Super Happy",
+        "Super_Happy",
         "Happy",
         "Neutre",
         "Depressed",
-        "Super Depressed"
+        "Super_Depressed"
       ]
     },
     "Emotion": {
