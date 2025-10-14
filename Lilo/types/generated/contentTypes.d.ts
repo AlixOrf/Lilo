@@ -459,46 +459,6 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
   };
 }
 
-export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
-  collectionName: 'articles';
-  info: {
-    description: 'Create your blog content';
-    displayName: 'Article';
-    pluralName: 'articles';
-    singularName: 'article';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    author: Schema.Attribute.Relation<'manyToOne', 'api::author.author'>;
-    blocks: Schema.Attribute.DynamicZone<
-      ['shared.media', 'shared.quote', 'shared.rich-text', 'shared.slider']
-    >;
-    category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
-    cover: Schema.Attribute.Media<'images' | 'files' | 'videos'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 80;
-      }>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::article.article'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'title'>;
-    title: Schema.Attribute.String;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
   collectionName: 'authors';
   info: {
@@ -511,7 +471,6 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    articles: Schema.Attribute.Relation<'oneToMany', 'api::article.article'>;
     avatar: Schema.Attribute.Media<'images' | 'files' | 'videos'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -543,7 +502,6 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    articles: Schema.Attribute.Relation<'oneToMany', 'api::article.article'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -589,6 +547,138 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     siteDescription: Schema.Attribute.Text & Schema.Attribute.Required;
     siteName: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiManagerManager extends Struct.CollectionTypeSchema {
+  collectionName: 'managers';
+  info: {
+    displayName: 'Manager';
+    pluralName: 'managers';
+    singularName: 'manager';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::manager.manager'
+    > &
+      Schema.Attribute.Private;
+    Mail: Schema.Attribute.Email & Schema.Attribute.Required;
+    Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    utilisateurs: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::utilisateur.utilisateur'
+    >;
+  };
+}
+
+export interface ApiMoodMood extends Struct.CollectionTypeSchema {
+  collectionName: 'moods';
+  info: {
+    displayName: 'Mood';
+    pluralName: 'moods';
+    singularName: 'mood';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Boisson: Schema.Attribute.Enumeration<
+      ['Eau', 'Caf\u00E9', 'Th\u00E9', 'Soda', 'Sirop', 'Jus']
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Date: Schema.Attribute.DateTime;
+    Emotion: Schema.Attribute.JSON &
+      Schema.Attribute.CustomField<
+        'plugin::multi-select.multi-select',
+        [
+          'Excit\u00E9',
+          'D\u00E9tendu',
+          'Fier',
+          'Optimiste',
+          'Heureux',
+          'Enthousiaste',
+          'Calme',
+          'Reconnaissant',
+          'D\u00E9prim\u00E9',
+          'Solitaire',
+          'Anxieux',
+          'Triste',
+          'En Col\u00E8re',
+          'Agac\u00E9',
+          'Fatigu\u00E9',
+          'Stress\u00E9',
+          'Ennuy\u00E9',
+          'Neutre',
+        ]
+      > &
+      Schema.Attribute.DefaultTo<'[]'>;
+    Image: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    Journal: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'> &
+      Schema.Attribute.Private;
+    Mood: Schema.Attribute.Enumeration<
+      ['Super Happy', 'Happy', 'Neutre', 'Depressed', 'Super Depressed']
+    > &
+      Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    utilisateur: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::utilisateur.utilisateur'
+    >;
+  };
+}
+
+export interface ApiUtilisateurUtilisateur extends Struct.CollectionTypeSchema {
+  collectionName: 'utilisateurs';
+  info: {
+    displayName: 'Utilisateur';
+    pluralName: 'utilisateurs';
+    singularName: 'utilisateur';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::utilisateur.utilisateur'
+    > &
+      Schema.Attribute.Private;
+    Mail: Schema.Attribute.Email & Schema.Attribute.Required;
+    manager: Schema.Attribute.Relation<'manyToOne', 'api::manager.manager'>;
+    moods: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'>;
+    Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1106,10 +1196,12 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::about.about': ApiAboutAbout;
-      'api::article.article': ApiArticleArticle;
       'api::author.author': ApiAuthorAuthor;
       'api::category.category': ApiCategoryCategory;
       'api::global.global': ApiGlobalGlobal;
+      'api::manager.manager': ApiManagerManager;
+      'api::mood.mood': ApiMoodMood;
+      'api::utilisateur.utilisateur': ApiUtilisateurUtilisateur;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

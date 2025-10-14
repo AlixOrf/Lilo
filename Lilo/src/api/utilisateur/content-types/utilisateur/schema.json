@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "utilisateurs",
+  "info": {
+    "singularName": "utilisateur",
+    "pluralName": "utilisateurs",
+    "displayName": "Utilisateur"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nom": {
+      "type": "string",
+      "required": true
+    },
+    "Mail": {
+      "type": "email",
+      "required": true
+    },
+    "Mot_de_passe": {
+      "type": "password",
+      "required": true
+    },
+    "moods": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::mood.mood",
+      "mappedBy": "utilisateur"
+    },
+    "manager": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::manager.manager",
+      "inversedBy": "utilisateurs"
+    }
+  }
+}

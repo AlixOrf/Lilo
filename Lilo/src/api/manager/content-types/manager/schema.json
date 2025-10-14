@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "managers",
+  "info": {
+    "singularName": "manager",
+    "pluralName": "managers",
+    "displayName": "Manager"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nom": {
+      "type": "string",
+      "required": true
+    },
+    "utilisateurs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::utilisateur.utilisateur",
+      "mappedBy": "manager"
+    },
+    "Mail": {
+      "type": "email",
+      "required": true
+    },
+    "Mot_de_passe": {
+      "type": "password",
+      "required": true
+    }
+  }
+}
