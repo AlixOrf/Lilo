@@ -1,17 +1,9 @@
 import React from 'react';
-import {
-    View,
-    TouchableOpacity,
-    Text,
-    StyleSheet,
-    Dimensions,
-    Platform,
-    } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// ✅ Récupère la largeur d'écran pour ajuster la navbar
 const { width } = Dimensions.get('window');
 
 type TabItem = {
@@ -23,59 +15,69 @@ type TabItem = {
 const tabs: TabItem[] = [
     { name: 'Stats', icon: 'stats-chart-outline', route: '/(tabs)/stat' },
     { name: 'Accueil', icon: 'home-outline', route: '/(tabs)' },
-    { name: 'Profil', icon: 'person-outline', route: '/(tabs)/profile-utilisateur' },
-    { name: 'Connexion', icon: 'person-outline', route: '/(tabs)/login' },
+    { name: 'Profil', icon: 'person-outline', route: '/(tabs)/profil' },
 ];
+
+const NAVBAR_HEIGHT = 60; // <- tu peux contrôler la hauteur exacte ici
 
 const CustomNavbar: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const insets = useSafeAreaInsets();
 
     return (
-    <SafeAreaView edges={['bottom']} style={styles.safeArea}>
-        <View style={[styles.navbar, { width }]}>
-        {tabs.map((tab) => {
-            const isActive = pathname === tab.route;
-            return (
-            <TouchableOpacity
-                key={tab.name}
-                style={styles.tab}
-                onPress={() => router.push(tab.route)}
-            >
-            <Ionicons
-                name={tab.icon}
-                size={24}
-                color={isActive ? '#6FC18A' : '#F5F5DC'}
-            />
-            <Text
-                style={[
-                    styles.label,
-                    { color: isActive ? '#6FC18A' : '#F5F5DC' },
-                ]}
-            >
-                {tab.name}
-            </Text>
-            </TouchableOpacity>
-            );
-        })}
+    <View
+        style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: NAVBAR_HEIGHT + insets.bottom, // hauteur totale = navbar + zone système
+            backgroundColor: '#2F494F',
+            zIndex: 10,
+        }}
+    >
+        <SafeAreaView edges={['bottom']} style={styles.safeArea}>
+            <View style={[styles.navbar, { height: NAVBAR_HEIGHT, width }]}>
+                {tabs.map((tab) => {
+                    const isActive = pathname === tab.route;
+                    return (
+                        <TouchableOpacity
+                        key={tab.name}
+                        style={styles.tab}
+                        onPress={() => router.push(tab.route)}
+                        >
+                    <Ionicons
+                        name={tab.icon}
+                        size={24}
+                        color={isActive ? '#6FC18A' : '#F5F5DC'}
+                    />
+                    <Text
+                    style={[
+                        styles.label,
+                        { color: isActive ? '#6FC18A' : '#F5F5DC' },
+                    ]}
+                    >
+                    {tab.name}
+                </Text>
+                </TouchableOpacity>
+                );
+            })}
+            </View>
+        </SafeAreaView>
         </View>
-    </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     safeArea: {
+        flex: 1,
         backgroundColor: '#2F494F',
     },
     navbar: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        backgroundColor: '#2F494F',
-        borderTopWidth: 1,
-        borderTopColor: '#ADB6BC',
-        height: Platform.OS === 'ios' ? 80 : 65, // un peu plus grand sur iPhone à cause du notch
-        paddingBottom: Platform.OS === 'android' ? 1 : 0,
     },
     tab: {
         alignItems: 'center',
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 12,
-        marginTop: 4,
+        marginTop: 1,
     },
 });
 
