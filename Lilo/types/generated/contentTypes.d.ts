@@ -639,7 +639,7 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'> &
       Schema.Attribute.Private;
     Mood: Schema.Attribute.Enumeration<
-      ['Super Happy', 'Happy', 'Neutre', 'Depressed', 'Super Depressed']
+      ['Super_Happy', 'Happy', 'Neutre', 'Depressed', 'Super_Depressed']
     > &
       Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
