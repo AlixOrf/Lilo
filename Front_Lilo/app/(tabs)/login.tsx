@@ -11,7 +11,7 @@ import {
   Switch,
 } from 'react-native';
 
-const API_URL = 'http://10.109.253.232:1337/api'; // 🔁 Remplace par ton IP ou URL d'API
+const API_URL = 'http://10.109.253.232:1337/api'; // Remplace par ton IP ou URL d'API
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -55,12 +55,10 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    // ✅ Extraire le nom depuis la structure réelle
     const utilisateur = data.data?.[0];
     const nom = utilisateur?.Nom || utilisateur?.Mail || 'Utilisateur';
     Alert.alert('Bienvenue', `Bonjour ${nom} 👋`);
 
-    // navigation.navigate('Home', { user: utilisateur });
 
   } catch (error) {
     setLoading(false);
@@ -78,7 +76,6 @@ export default function LoginScreen({ navigation }) {
       />
       <Text style={styles.title}>Connexion</Text>
 
-      {/* Champ email */}
       <TextInput
         placeholder="Email"
         value={email}
@@ -88,7 +85,6 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
       />
 
-      {/* Champ mot de passe avec bouton afficher/cacher */}
       <View style={styles.passwordContainer}>
         <TextInput
           placeholder="Mot de passe"
@@ -107,7 +103,6 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Switch d'acceptation des conditions */}
       <View style={styles.checkboxContainer}>
         <Switch
           value={acceptedTerms}
@@ -120,7 +115,6 @@ export default function LoginScreen({ navigation }) {
         </Text>
       </View>
 
-      {/* Bouton de connexion */}
       <TouchableOpacity
         style={[styles.button, !acceptedTerms && styles.buttonDisabled]}
         onPress={handleLogin}
@@ -133,7 +127,6 @@ export default function LoginScreen({ navigation }) {
         )}
       </TouchableOpacity>
 
-      {/* Footer */}
       <Text style={styles.footerText}>
         Pas encore de compte ?{'\n'}Demandez à votre manager de vous en créer un !
       </Text>
