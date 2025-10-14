@@ -76,6 +76,9 @@
       "relation": "manyToOne",
       "target": "api::utilisateur.utilisateur",
       "inversedBy": "moods"
+    },
+    "Date": {
+      "type": "datetime"
     }
   }
 }
