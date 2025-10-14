@@ -11,7 +11,7 @@ import {
   Switch,
 } from 'react-native';
 
-const API_URL = 'http://10.109.253.232:1337/api'; // Remplace par ton IP
+const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -21,57 +21,44 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
-    return;
-  }
-
-  if (!acceptedTerms) {
-    Alert.alert('Conditions requises', 'Vous devez accepter les conditions d’utilisation.');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    const response = await fetch(`${API_URL}/utilisateurs`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: {
-          Mail: email,
-          Mot_de_passe: password,
-        },
-      }),
-    });
-
-    const data = await response.json();
-    console.log('Réponse serveur :', data);
-    setLoading(false);
-
-    if (!response.ok) {
-      Alert.alert('Erreur', data.error?.message || 'Identifiants incorrects.');
+    if (!email || !password) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
       return;
     }
 
-    const utilisateur = data.data?.[0];
-    const nom = utilisateur?.Nom || utilisateur?.Mail || 'Utilisateur';
+    if (!acceptedTerms) {
+      Alert.alert('Conditions requises', 'Vous devez accepter les conditions d’utilisation.');
+      return;
+    }
 
-    Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
-      {
-        text: 'Continuer',
-      },
-    ]);
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/utilisateurs?filters[Mail][$eq]=${encodeURIComponent(email)}&filters[Mot_de_passe][$eq]=${encodeURIComponent(password)}`
+      );
 
-  } catch (error) {
-    setLoading(false);
-    Alert.alert('Erreur', 'Impossible de contacter le serveur.');
-    console.error(error);
-  }
-};
+      const data = await response.json();
+      console.log('Réponse serveur :', data);
+      setLoading(false);
 
+      if (data.data && data.data.length > 0) {
+        const utilisateur = data.data[0];
+        const nom = utilisateur.attributes?.Nom || utilisateur.attributes?.Mail || 'Utilisateur';
 
+        Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
+          {
+            text: 'Continuer',
+          },
+        ]);
+      } else {
+        Alert.alert('Erreur', 'Identifiants incorrects.');
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      Alert.alert('Erreur', 'Impossible de contacter le serveur.');
+    }
+  };
 
   return (
     <View style={styles.container}>
