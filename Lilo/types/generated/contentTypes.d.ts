@@ -626,7 +626,6 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
           'Fatigu\u00E9',
           'Stress\u00E9',
           'Ennuy\u00E9',
-          'Neutre',
         ]
       > &
       Schema.Attribute.DefaultTo<'[]'>;

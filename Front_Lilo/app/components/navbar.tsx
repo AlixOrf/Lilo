@@ -17,6 +17,7 @@ const tabs: TabItem[] = [
     { name: 'Accueil', icon: 'home-outline', route: '/(tabs)' },
     { name: 'Profil', icon: 'person-outline', route: '/(tabs)/profile-utilisateur' },
     { name: 'Connexion', icon: 'person-outline', route: '/(tabs)/debut' },
+
 ];
 
 const NAVBAR_HEIGHT = 60; // <- tu peux contrôler la hauteur exacte ici
