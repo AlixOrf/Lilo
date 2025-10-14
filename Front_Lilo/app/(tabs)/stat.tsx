@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 
-export default function Accueil() {
+export default function StatScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Page Accueil</Text>
+      <Text style={styles.title}>Page Statistiques</Text>
       <Text style={styles.text}>
-        Ici, l’utilisateur pourra accéder à l'app.
+        Ici seront affichées les statistiques de l’utilisateur (progression, activité, etc.).
       </Text>
     </View>
   );
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F5DC', // couleur de ta charte graphique
+    backgroundColor: '#F5F5DC',
     padding: 16,
   },
   title: {

@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 
-export default function Accueil() {
+export default function ProfilScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Page Accueil</Text>
+      <Text style={styles.title}>Page Profil</Text>
       <Text style={styles.text}>
-        Ici, l’utilisateur pourra accéder à l'app.
+        Ici, l’utilisateur pourra consulter et modifier ses informations personnelles.
       </Text>
     </View>
   );
