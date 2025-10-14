@@ -11,7 +11,7 @@ import {
   Switch,
 } from 'react-native';
 
-const API_URL = 'http://10.109.253.232:1337/api'; // Remplace par ton IP ou URL d'API
+const API_URL = 'http://10.109.253.232:1337/api'; // Remplace par ton IP
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -57,8 +57,12 @@ export default function LoginScreen({ navigation }) {
 
     const utilisateur = data.data?.[0];
     const nom = utilisateur?.Nom || utilisateur?.Mail || 'Utilisateur';
-    Alert.alert('Bienvenue', `Bonjour ${nom} 👋`);
 
+    Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
+      {
+        text: 'Continuer',
+      },
+    ]);
 
   } catch (error) {
     setLoading(false);
@@ -66,6 +70,7 @@ export default function LoginScreen({ navigation }) {
     console.error(error);
   }
 };
+
 
 
   return (
