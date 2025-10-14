@@ -574,8 +574,8 @@ export interface ApiManagerManager extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     Mail: Schema.Attribute.Email & Schema.Attribute.Required;
-    Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
-    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    Mot_de_passe: Schema.Attribute.String & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -676,8 +676,8 @@ export interface ApiUtilisateurUtilisateur extends Struct.CollectionTypeSchema {
     Mail: Schema.Attribute.Email & Schema.Attribute.Required;
     manager: Schema.Attribute.Relation<'manyToOne', 'api::manager.manager'>;
     moods: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'>;
-    Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
-    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    Mot_de_passe: Schema.Attribute.String & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

@@ -13,14 +13,10 @@
   "attributes": {
     "Nom": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "Mail": {
       "type": "email",
-      "required": true
-    },
-    "Mot_de_passe": {
-      "type": "password",
       "required": true
     },
     "moods": {
@@ -34,6 +30,10 @@
       "relation": "manyToOne",
       "target": "api::manager.manager",
       "inversedBy": "utilisateurs"
+    },
+    "Mot_de_passe": {
+      "type": "string",
+      "required": true
     }
   }
 }
