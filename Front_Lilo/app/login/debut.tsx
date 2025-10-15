@@ -13,7 +13,7 @@ const WelcomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
 
       <Image
-        source={require('./assets/Super_Happy.png')} 
+        source={require('../(tabs)/assets/Super_Happy.png')} 
         style={styles.image}
       />
 
@@ -21,14 +21,14 @@ const WelcomeScreen: React.FC = () => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/login')}
+        onPress={() => router.push('/login/login')}
       >
         <Text style={styles.buttonText}>Employé</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/loginman')}
+        onPress={() => router.push('/login/loginman')}
       >
         <Text style={styles.buttonText}>Manager</Text>
       </TouchableOpacity>

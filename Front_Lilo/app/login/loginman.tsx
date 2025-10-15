@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
   Switch,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
 
-export default function ManagerLogin({ navigation }) {
+export default function ManagerLogin() {
+  const router = useRouter(); // ✅ Correction principale
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +36,6 @@ export default function ManagerLogin({ navigation }) {
     setLoading(true);
 
     try {
-      // On récupère l'utilisateur par email
       const response = await fetch(
         `${API_URL}/managers?filters[Mail][$eq]=${encodeURIComponent(email)}`
       );
@@ -46,7 +47,8 @@ export default function ManagerLogin({ navigation }) {
         return;
       }
 
-      const utilisateur = data.data[0];
+      // Selon ta structure Strapi, les données sont peut-être dans .attributes :
+      const utilisateur = data.data[0].attributes || data.data[0];
 
       // Vérification du mot de passe
       if (utilisateur.Mot_de_passe !== password) {
@@ -56,10 +58,15 @@ export default function ManagerLogin({ navigation }) {
 
       const nom = utilisateur.Nom || utilisateur.Mail || 'Manager';
 
-      // Pop-up et redirection vers Home
+      // Pop-up et redirection
       Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
         {
           text: 'Continuer',
+          onPress: () => {
+            router.push(
+              `../man/profilman?user=${encodeURIComponent(JSON.stringify(utilisateur))}`
+            );
+          },
         },
       ]);
     } catch (error) {
@@ -72,7 +79,7 @@ export default function ManagerLogin({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={require('./assets/Super_Happy.png')} 
+        source={require('../(tabs)/assets/Super_Happy.png')}
         style={styles.logo}
       />
       <Text style={styles.title}>Connexion Managers</Text>
@@ -98,7 +105,9 @@ export default function ManagerLogin({ navigation }) {
           onPress={() => setShowPassword(!showPassword)}
           style={styles.showPasswordButton}
         >
-          <Text style={styles.showPasswordText}>{showPassword ? 'Cacher' : 'Afficher'}</Text>
+          <Text style={styles.showPasswordText}>
+            {showPassword ? 'Cacher' : 'Afficher'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -119,10 +128,24 @@ export default function ManagerLogin({ navigation }) {
         onPress={handleLogin}
         disabled={loading || !acceptedTerms}
       >
-        {loading ? <ActivityIndicator color="#262524" /> : <Text style={styles.buttonText}>Se connecter</Text>}
+        {loading ? (
+          <ActivityIndicator color="#262524" />
+        ) : (
+          <Text style={styles.buttonText}>Se connecter</Text>
+        )}
       </TouchableOpacity>
 
-      <Text style={styles.footerText}>Vous êtes sur la page de connexion managers !</Text>
+        <TouchableOpacity
+        style={[styles.button, styles.backButton]}
+        onPress={() => router.replace('/login/debut')}
+        >
+        <Text style={styles.buttonText}>Retour à l'accueil</Text>
+        </TouchableOpacity>
+
+
+      <Text style={styles.footerText}>
+        Vous êtes sur la page de connexion managers !
+      </Text>
     </View>
   );
 }
@@ -204,6 +227,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  backButton: {
+    backgroundColor: '#b6b0ae',
+    marginTop: 10,
+  },
   buttonDisabled: {
     backgroundColor: '#b6b0ae',
   },
@@ -219,4 +246,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+  backButton: {
+  backgroundColor: '#b6b0ae', // gris
+  marginTop: 10,
+  },
+
 });

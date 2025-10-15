@@ -68,7 +68,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('./assets/Super_Happy.png')} 
+        source={require('../(tabs)/assets/Super_Happy.png')}
         style={styles.logo}
       />
 
@@ -114,6 +114,13 @@ export default function LoginScreen() {
         {loading ? <ActivityIndicator color="#262524" /> : <Text style={styles.buttonText}>Se connecter</Text>}
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={[styles.button, styles.backButton]}
+        onPress={() => router.replace('/login/debut')}
+      >
+        <Text style={styles.buttonText}>Retour à l'accueil</Text>
+      </TouchableOpacity>
+
       <Text style={styles.footerText}>
         Pas encore de compte ?{'\n'}Demandez à votre manager de vous en créer un !
       </Text>
@@ -133,6 +140,7 @@ const styles = StyleSheet.create({
   checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 12, justifyContent: 'center', width: '100%' },
   checkboxLabel: { color: '#262524', fontSize: 14, marginLeft: 10, flexShrink: 1 },
   button: { backgroundColor: '#76efa3', paddingVertical: 14, borderRadius: 8, width: '100%', alignItems: 'center', marginTop: 10 },
+  backButton: { backgroundColor: '#b6b0ae', marginTop: 10 }, // couleur différente pour différencier
   buttonDisabled: { backgroundColor: '#b6b0ae' },
   buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
   footerText: { marginTop: 25, color: '#b6b0ae', fontSize: 14, textAlign: 'center', lineHeight: 20 },

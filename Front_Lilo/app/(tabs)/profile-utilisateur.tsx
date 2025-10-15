@@ -71,7 +71,7 @@ export default function ProfileUtilisateur() {
   const handleLogout = () => {
     Alert.alert('Déconnexion', 'Voulez-vous vous déconnecter ?', [
       { text: 'Annuler', style: 'cancel' },
-      { text: 'Oui', onPress: () => router.replace('/debut') },
+      { text: 'Oui', onPress: () => router.replace('../login/debut') },
     ]);
   };
 

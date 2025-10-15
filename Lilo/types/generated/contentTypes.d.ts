@@ -615,7 +615,6 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
           'Optimiste',
           'Heureux',
           'Enthousiaste',
-          'Calme',
           'Reconnaissant',
           'D\u00E9prim\u00E9',
           'Solitaire',
