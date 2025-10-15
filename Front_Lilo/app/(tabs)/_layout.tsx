@@ -5,10 +5,9 @@ import CustomNavbar from './../components/navbar';
 export default function TabsLayout() {
   return (
     <View style={styles.container}>
-      {/* Contenu des pages */}
+
       <Stack screenOptions={{ headerShown: false }} />
 
-      {/* Navbar personnalisée */}
       <CustomNavbar />
     </View>
   );

@@ -114,7 +114,6 @@ export default function LoginScreen() {
         {loading ? <ActivityIndicator color="#262524" /> : <Text style={styles.buttonText}>Se connecter</Text>}
       </TouchableOpacity>
 
-      {/* Nouveau bouton Retour à l'accueil */}
       <TouchableOpacity
         style={[styles.button, styles.backButton]}
         onPress={() => router.replace('/login/debut')}
