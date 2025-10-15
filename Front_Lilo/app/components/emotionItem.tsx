@@ -1,21 +1,41 @@
-// EmotionItem.tsx
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet, ImageSourcePropType } from 'react-native';
+import { TouchableOpacity, View, Image, StyleSheet, ImageSourcePropType } from 'react-native';
 
 interface EmotionItemProps {
-  imgSource: ImageSourcePropType; // ✅ type correct
-  selected: boolean;
+  imgSource: ImageSourcePropType;
+  selected?: boolean;
   onPress: () => void;
+  isRounded?: boolean;
+  highlightColor?: string; // 👈 couleur personnalisée pour la sélection
+  dimOthers?: boolean; // 👈 si on veut griser les autres
 }
 
-export default function EmotionItem({ imgSource, selected, onPress }: EmotionItemProps) {
+export default function EmotionItem({
+  imgSource,
+  selected = false,
+  onPress,
+  isRounded = false,
+  highlightColor = '#ffde52',
+  dimOthers = false,
+}: EmotionItemProps) {
   return (
-    <TouchableOpacity
-      style={[styles.gridItem, selected && styles.selectedItem]}
-      onPress={onPress}
-      activeOpacity={1} // ✅ plus de transparence au clic
-    >
-      <Image source={imgSource} style={styles.gridImage} />
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <View
+        style={[
+          styles.wrapper,
+          isRounded && styles.rounded,
+          { borderColor: selected ? highlightColor : 'transparent' },
+        ]}
+      >
+        <Image
+          source={imgSource}
+          style={[
+            styles.gridImage,
+            isRounded && styles.roundedImage,
+            dimOthers && !selected && styles.dimmedImage, // 👈 rend les autres gris
+          ]}
+        />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -23,20 +43,26 @@ export default function EmotionItem({ imgSource, selected, onPress }: EmotionIte
 const IMAGE_SIZE = 60;
 
 const styles = StyleSheet.create({
-  gridItem: {
+  wrapper: {
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
-    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  selectedItem: {
     borderWidth: 3,
-    borderColor: '#FF7DAF',
+    overflow: 'hidden',
+  },
+  rounded: {
+    borderRadius: IMAGE_SIZE / 2,
   },
   gridImage: {
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
     resizeMode: 'contain',
+  },
+  roundedImage: {
+    borderRadius: IMAGE_SIZE / 2,
+  },
+  dimmedImage: {
+    opacity: 0.4, // 👈 ou filter grayscale si web
   },
 });
