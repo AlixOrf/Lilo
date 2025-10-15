@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
   Switch,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
 
-export default function LoginScreen({ navigation }) {
+export default function ManagerLogin() {
+  const router = useRouter(); // ✅ Correction principale
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,27 +34,41 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
+
     try {
       const response = await fetch(
-        `${API_URL}/utilisateurs?filters[Mail][$eq]=${encodeURIComponent(email)}&filters[Mot_de_passe][$eq]=${encodeURIComponent(password)}`
+        `${API_URL}/managers?filters[Mail][$eq]=${encodeURIComponent(email)}`
       );
-
       const data = await response.json();
-      console.log('Réponse serveur :', data);
       setLoading(false);
 
-      if (data.data && data.data.length > 0) {
-        const utilisateur = data.data[0];
-        const nom = utilisateur.attributes?.Nom || utilisateur.attributes?.Mail || 'Utilisateur';
-
-        Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
-          {
-            text: 'Continuer',
-          },
-        ]);
-      } else {
-        Alert.alert('Erreur', 'Identifiants incorrects.');
+      if (!data.data || data.data.length === 0) {
+        Alert.alert('Erreur', 'Aucun manager trouvé avec cet e-mail.');
+        return;
       }
+
+      // Selon ta structure Strapi, les données sont peut-être dans .attributes :
+      const utilisateur = data.data[0].attributes || data.data[0];
+
+      // Vérification du mot de passe
+      if (utilisateur.Mot_de_passe !== password) {
+        Alert.alert('Erreur', 'Mot de passe incorrect.');
+        return;
+      }
+
+      const nom = utilisateur.Nom || utilisateur.Mail || 'Manager';
+
+      // Pop-up et redirection
+      Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
+        {
+          text: 'Continuer',
+          onPress: () => {
+            router.push(
+              `../man/profilman?user=${encodeURIComponent(JSON.stringify(utilisateur))}`
+            );
+          },
+        },
+      ]);
     } catch (error) {
       setLoading(false);
       console.error(error);
@@ -63,10 +79,10 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: 'https://cdn-icons-png.flaticon.com/512/5087/5087579.png' }}
+        source={require('../(tabs)/assets/Super_Happy.png')}
         style={styles.logo}
       />
-      <Text style={styles.title}>Connexion</Text>
+      <Text style={styles.title}>Connexion Managers</Text>
 
       <TextInput
         placeholder="Email"
@@ -119,8 +135,16 @@ export default function LoginScreen({ navigation }) {
         )}
       </TouchableOpacity>
 
+        <TouchableOpacity
+        style={[styles.button, styles.backButton]}
+        onPress={() => router.replace('/login/debut')}
+        >
+        <Text style={styles.buttonText}>Retour à l'accueil</Text>
+        </TouchableOpacity>
+
+
       <Text style={styles.footerText}>
-        Pas encore de compte ?{'\n'}Demandez à votre manager de vous en créer un !
+        Vous êtes sur la page de connexion managers !
       </Text>
     </View>
   );
@@ -135,10 +159,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logo: {
-    width: 100,
+    width: 200,
     height: 100,
-    marginBottom: 30,
-    tintColor: '#76efa3',
+    marginBottom: 10,
+    resizeMode: 'contain',
   },
   title: {
     color: '#262524',
@@ -203,6 +227,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  backButton: {
+    backgroundColor: '#b6b0ae',
+    marginTop: 10,
+  },
   buttonDisabled: {
     backgroundColor: '#b6b0ae',
   },
@@ -218,4 +246,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+  backButton: {
+  backgroundColor: '#b6b0ae', // gris
+  marginTop: 10,
+  },
+
 });

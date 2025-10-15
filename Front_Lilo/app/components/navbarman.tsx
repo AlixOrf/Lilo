@@ -13,9 +13,8 @@ type TabItem = {
 };
 
 const tabs: TabItem[] = [
-    { name: 'Stats', icon: 'stats-chart-outline', route: '/(tabs)/stat' },
-    { name: 'Accueil', icon: 'home-outline', route: '/(tabs)' },
-    { name: 'Profil', icon: 'person-outline', route: '/(tabs)/profile-utilisateur' },
+    { name: 'Stats', icon: 'stats-chart-outline', route: '/man/statman' },
+    { name: 'Profil', icon: 'person-outline', route: '/man/profilman' },
 ];
 
 const NAVBAR_HEIGHT = 60; // <- tu peux contrôler la hauteur exacte ici

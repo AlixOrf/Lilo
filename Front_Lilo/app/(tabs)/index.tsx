@@ -122,7 +122,7 @@ export default function HomeScreen() {
                 selected={selectedEmotion2.includes(i)}
                 onPress={() => handlePress2(i)}
                 isRounded={true}
-                highlightColor="#ffffffff" // 💚 Vert pastel pour émotions multiples
+                highlightColor="#262524" // 💚 Vert pastel pour émotions multiples
               />
             ))}
           </View>
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '700', marginBottom: 25, color: '#262524' },
   card: {
     width: width * 0.93,
-    backgroundColor: '#e9e4e0ff',
+    backgroundColor: '#f0ece9ff',
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 10,
