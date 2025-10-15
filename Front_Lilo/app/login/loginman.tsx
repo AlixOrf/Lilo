@@ -72,7 +72,7 @@ export default function ManagerLogin({ navigation }) {
   return (
     <View style={styles.container}>
       <Image
-        source={require('./assets/Super_Happy.png')} 
+        source={require('../(tabs)/assets/Super_Happy.png')} 
         style={styles.logo}
       />
       <Text style={styles.title}>Connexion Managers</Text>

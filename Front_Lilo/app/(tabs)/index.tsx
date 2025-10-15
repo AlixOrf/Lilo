@@ -18,7 +18,6 @@ const gridImages = [
 export default function HomeScreen() {
   const [selectedEmotion, setSelectedEmotion] = useState<number | null>(null);
 
-  // ✅ La fonction ne sera appelée que par le bouton
   const sendSelectionToBackend = async () => {
     if (selectedEmotion === null) {
       Alert.alert('⚠️ Veuillez sélectionner une émotion avant de valider.');
@@ -40,10 +39,10 @@ export default function HomeScreen() {
 
   const handlePress = (index: number) => {
     if (selectedEmotion === index) {
-      // ✅ toggle : désélectionne si déjà sélectionné
+
       setSelectedEmotion(null);
     } else {
-      setSelectedEmotion(index); // ✅ sélection
+      setSelectedEmotion(index); 
     }
   };
 
@@ -60,14 +59,13 @@ export default function HomeScreen() {
               <EmotionItem
                 key={i}
                 imgSource={img}
-                selected={selectedEmotion === i} // ✅ sélection persistante
+                selected={selectedEmotion === i} 
                 onPress={() => handlePress(i)}
               />
             ))}
           </View>
         </View>
 
-        {/* ✅ Bouton pour valider la sélection */}
         <TouchableOpacity style={styles.button} onPress={sendSelectionToBackend}>
           <Text style={styles.buttonText}>Valider</Text>
         </TouchableOpacity>
@@ -83,7 +81,7 @@ const styles = StyleSheet.create({
   scroll: { paddingTop: 18, alignItems: 'center' },
   title: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
   card: {
-    width: width * 0.93, // ✅ carte moins large (90% de l'écran)
+    width: width * 0.93, 
     backgroundColor: '#e2e2e2ff',
     borderRadius: 8,
     paddingVertical: 16,
@@ -94,7 +92,6 @@ const styles = StyleSheet.create({
   cardTitle: { marginBottom: 12, fontSize: 14, color: '#222', textAlign: 'center' },
   grid: { width: '100%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', rowGap: 18 },
 
-  // ✅ Styles bouton
   button: {
     marginTop: 20,
     backgroundColor: '#FF7DAF',
