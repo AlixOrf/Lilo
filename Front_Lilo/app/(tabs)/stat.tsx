@@ -18,9 +18,19 @@ const moodImages: Record<string, any> = {
   Super_Depressed: require("./assets/Super_Depressed.png"),
 };
 
+const drinkImages: Record<string, any> = {
+  Thé: require("./assets/The.png"),
+  Eau: require("./assets/Eau.png"),
+  Café: require("./assets/Cafe.png"),
+  Soda: require("./assets/Soda.png"),
+  Sirop: require("./assets/Sirop.png"),
+  Jus: require("./assets/Jus.png"),
+};
+
 interface MoodEntry {
   id: number;
   Mood: keyof typeof moodImages;
+  Boisson: keyof typeof drinkImages;
   Date: string;
 }
 
@@ -30,6 +40,9 @@ const Stat = () => {
     labels: [] as string[],
     datasets: [{ data: [] as number[] }],
   });
+  const [topDrinks, setTopDrinks] = useState<{ name: string; count: number }[]>(
+    []
+  );
 
   const chartHeight = 360;
 
@@ -40,10 +53,12 @@ const Stat = () => {
         const fetchedMoods = json.data.map((item: any) => ({
           id: item.id,
           Mood: item.Mood,
+          Boisson: item.Boisson,
           Date: item.Date,
         }));
         setMoods(fetchedMoods);
         generateChartData(fetchedMoods);
+        computeTopDrinks(fetchedMoods);
       })
       .catch((error) => console.error("Erreur lors du fetch:", error));
   }, []);
@@ -83,6 +98,24 @@ const Stat = () => {
     });
   };
 
+  const computeTopDrinks = (data: MoodEntry[]) => {
+    const drinkCount: Record<string, number> = {};
+
+    data.forEach((item) => {
+      if (item.Boisson) {
+        drinkCount[item.Boisson] = (drinkCount[item.Boisson] || 0) + 1;
+      }
+    });
+
+    const sorted = Object.entries(drinkCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name, count]) => ({ name, count }));
+
+    setTopDrinks(sorted);
+  };
+
+  // 🎯 Affichage du jour avec image OU numéro
   const renderDay = (day: any) => {
     const dateStr = `${day.year}-${String(day.month).padStart(2, "0")}-${String(
       day.day
@@ -95,9 +128,9 @@ const Stat = () => {
     return (
       <View style={styles.dayContainer}>
         {moodForDay ? (
-          <Image source={moodImages[moodForDay]} style={styles.moodImage} />
+          <Image source={moodImages[moodForDay]} style={styles.moodImageFull} />
         ) : (
-          <View style={styles.emptyDay} />
+          <Text style={styles.dayNumber}>{day.day}</Text>
         )}
       </View>
     );
@@ -106,77 +139,100 @@ const Stat = () => {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 200 }}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Calendrier des Moods</Text>
+      <Text style={styles.header}>🌤️ Tes Statistiques du Mois</Text>
 
-      <Calendar
-        // @ts-ignore
-        dayComponent={({ date }) => renderDay(date)}
-        hideExtraDays
-        theme={{
-          backgroundColor: "#ffffff",
-          calendarBackground: "#ffffff",
-          textSectionTitleColor: "#3dbf86",
-          monthTextColor: "#262524",
-          todayTextColor: "#3dbf86",
-          textMonthFontWeight: "bold",
-          textDayFontSize: 16,
-        }}
-      />
+      <View style={styles.sectionCard}>
+        <Text style={styles.title}>🗓️ Calendrier des Moods</Text>
 
-      <Text style={styles.title}>Évolution du Mood</Text>
+        <Calendar
+          // @ts-ignore
+          dayComponent={({ date }) => renderDay(date)}
+          hideExtraDays
+          theme={{
+            backgroundColor: "#ffffff",
+            calendarBackground: "#ffffff",
+            textSectionTitleColor: "#3dbf86",
+            monthTextColor: "#262524",
+            todayTextColor: "#3dbf86",
+            textMonthFontWeight: "bold",
+            textDayFontSize: 16,
+          }}
+        />
+      </View>
 
-      {chartData.labels.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 10 }}
-        >
-          <View style={styles.chartWrapper}>
-            {/* 🧩 Icônes à gauche de l’axe Y */}
-            <View style={styles.iconColumn}>
-              {(["Super_Happy", "Happy", "Neutre", "Depressed", "Super_Depressed"] as const).map(
-                (mood) => (
-                  <View key={mood} style={styles.iconWrapper}>
-                    <Image source={moodImages[mood]} style={styles.axisIcon} />
-                  </View>
-                )
-              )}
+      <View style={styles.sectionCard}>
+        <Text style={styles.title}>📈 Évolution du Mood</Text>
+
+        {chartData.labels.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 10 }}
+          >
+            <View style={styles.chartWrapper}>
+              <View style={styles.iconColumn}>
+                {(["Super_Happy", "Happy", "Neutre", "Depressed", "Super_Depressed"] as const).map(
+                  (mood) => (
+                    <View key={mood} style={styles.iconWrapper}>
+                      <Image source={moodImages[mood]} style={styles.axisIcon} />
+                    </View>
+                  )
+                )}
+              </View>
+
+              <LineChart
+                data={chartData}
+                width={Dimensions.get("window").width * 1.5}
+                height={chartHeight}
+                chartConfig={{
+                  backgroundColor: "#ffffff",
+                  backgroundGradientFrom: "#ffffff",
+                  backgroundGradientTo: "#ffffff",
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(61, 191, 134, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(38, 37, 36, ${opacity})`,
+                  propsForDots: {
+                    r: "7",
+                    strokeWidth: "2",
+                    stroke: "#ffde52",
+                  },
+                }}
+                bezier
+                style={styles.chart}
+                fromZero
+                withInnerLines={false}
+                withVerticalLines={false}
+                withHorizontalLines={false}
+                yLabelsOffset={-9999}
+              />
             </View>
+          </ScrollView>
+        ) : (
+          <Text style={styles.loadingText}>Chargement du graphique...</Text>
+        )}
+      </View>
 
-            {/* 📈 Courbe des moods */}
-            <LineChart
-              data={chartData}
-              width={Dimensions.get("window").width * 1.5}
-              height={chartHeight}
-              chartConfig={{
-                backgroundColor: "#ffffff",
-                backgroundGradientFrom: "#ffffff",
-                backgroundGradientTo: "#ffffff",
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(61, 191, 134, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(38, 37, 36, ${opacity})`,
-                propsForDots: {
-                  r: "6",
-                  strokeWidth: "2",
-                  stroke: "#3dbf86",
-                },
-              }}
-              bezier
-              style={styles.chart}
-              fromZero
-              withInnerLines={false}
-              withVerticalLines={false}
-              withHorizontalLines={false}
-              yLabelsOffset={-9999} // cache les labels Y
-            />
-          </View>
-        </ScrollView>
-      ) : (
-        <Text style={styles.loadingText}>Chargement du graphique...</Text>
-      )}
+      <View style={styles.drinkContainer}>
+        <Text style={styles.title}>🧃 Top 3 des boissons du mois</Text>
+        <View style={styles.drinkList}>
+          {topDrinks.map((drink, index) => (
+            <View
+              key={drink.name}
+              style={[
+                styles.drinkItem,
+                { backgroundColor: index === 0 ? "#ffde52" : "#76efa3" },
+              ]}
+            >
+              <Image source={drinkImages[drink.name]} style={styles.drinkImage} />
+              <Text style={styles.drinkName}>{drink.name}</Text>
+              <Text style={styles.drinkCount}>{drink.count}x</Text>
+            </View>
+          ))}
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -187,14 +243,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
-    paddingTop: 40,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#3dbf86",
+    marginVertical: 20,
+  },
+  sectionCard: {
+    backgroundColor: "#dfdad7",
+    marginHorizontal: 15,
+    borderRadius: 20,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#262524",
     textAlign: "center",
-    marginVertical: 10,
+    marginBottom: 10,
   },
   dayContainer: {
     justifyContent: "center",
@@ -202,16 +275,15 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width / 7 - 5,
     height: 50,
   },
-  // 👇 Suppression du borderRadius pour afficher les images complètement
-  moodImage: {
-    width: 40, // légèrement plus grand pour bien les voir
-    height: 40,
+  moodImageFull: {
+    width: 45,
+    height: 45,
     resizeMode: "contain",
   },
-  emptyDay: {
-    width: 40,
-    height: 40,
-    backgroundColor: "transparent",
+  dayNumber: {
+    fontSize: 14,
+    color: "#b6b0ae",
+    fontWeight: "600",
   },
   chartWrapper: {
     flexDirection: "row",
@@ -225,8 +297,8 @@ const styles = StyleSheet.create({
   },
   iconColumn: {
     width: 50,
-    justifyContent: "space-between", // ⚡ aligne les images sur toute la hauteur
-    marginRight: 2,
+    justifyContent: "space-between",
+    marginRight: 5,
   },
   iconWrapper: {
     alignItems: "center",
@@ -241,6 +313,37 @@ const styles = StyleSheet.create({
     color: "#949190",
     marginTop: 10,
   },
+  drinkContainer: {
+    backgroundColor: "#ffffff",
+    margin: 15,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: "#3dbf86",
+  },
+  drinkList: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 15,
+  },
+  drinkItem: {
+    alignItems: "center",
+    borderRadius: 16,
+    padding: 10,
+    width: 100,
+  },
+  drinkImage: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+  },
+  drinkName: {
+    marginTop: 5,
+    fontWeight: "600",
+    color: "#262524",
+  },
+  drinkCount: {
+    color: "#ea654e",
+    fontWeight: "bold",
+  },
 });
-
-
