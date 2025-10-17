@@ -202,15 +202,15 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width / 7 - 5,
     height: 50,
   },
+  // 👇 Suppression du borderRadius pour afficher les images complètement
   moodImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 40, // légèrement plus grand pour bien les voir
+    height: 40,
+    resizeMode: "contain",
   },
   emptyDay: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 40,
+    height: 40,
     backgroundColor: "transparent",
   },
   chartWrapper: {
@@ -242,4 +242,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
+
 
