@@ -7,7 +7,7 @@ export default function ManagerLayout() {
     <View style={styles.container}>
 
       <Tabs screenOptions={{ headerShown: false }}>
-        <Tabs.Screen name="profilman" />
+        <Tabs.Screen name="profil-manager" />
         <Tabs.Screen name="statman" />
       </Tabs>
 
