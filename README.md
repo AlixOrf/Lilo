@@ -25,6 +25,7 @@ Avant de commencer, assurez-vous d'avoir installé les éléments suivants sur v
   - **Expo**
   - **react-native-chart-kit**
   - **strapi-plugin-multi-select**
+  - **react-native-calendars**
 
 ## **Installation**
 
