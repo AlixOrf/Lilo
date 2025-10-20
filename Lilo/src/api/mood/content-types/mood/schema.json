@@ -49,8 +49,8 @@
       "type": "enumeration",
       "enum": [
         "Eau",
-        "Café",
-        "Thé",
+        "Cafe",
+        "The",
         "Soda",
         "Sirop",
         "Jus"

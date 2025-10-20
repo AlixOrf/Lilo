@@ -1,3 +1,4 @@
+// app/(tabs)/stat.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -9,13 +10,14 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { LineChart } from "react-native-chart-kit";
+import { useAuth } from "../context/AuthContext";
 
 const moodImages: Record<string, any> = {
-  Super_Happy: require("./assets/Super_Happy.png"),
-  Happy: require("./assets/Happy.png"),
-  Neutre: require("./assets/Neutre.png"),
-  Depressed: require("./assets/Depressed.png"),
-  Super_Depressed: require("./assets/Super_Depressed.png"),
+  Super_Happy: require('../(tabs)/assets/Super_Happy.png'),
+  Happy: require('../(tabs)/assets/Happy.png'),
+  Neutre: require('../(tabs)/assets/Neutre.png'),
+  Depressed: require('../(tabs)/assets/Depressed.png'),
+  Super_Depressed: require('../(tabs)/assets/Super_Depressed.png'),
 };
 
 interface MoodEntry {
@@ -32,21 +34,28 @@ const Stat = () => {
   });
 
   const chartHeight = 360;
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetch("http://10.109.253.140:1337/api/moods")
+    // si tu veux filtrer par utilisateur, tu peux append ?filters[utilisateur][$eq]=user.id
+    const url = 'http://10.109.253.140:1337/api/moods';
+    fetch(url)
       .then((response) => response.json())
       .then((json) => {
-        const fetchedMoods = json.data.map((item: any) => ({
-          id: item.id,
-          Mood: item.Mood,
-          Date: item.Date,
-        }));
+        const fetchedMoods = json.data.map((item: any) => {
+          // gérer si les données sont en attributes ou en flat object
+          const built = {
+            id: item.id,
+            Mood: item.Mood || item.attributes?.Mood || item.attributes?.mood,
+            Date: item.Date || item.attributes?.Date || item.attributes?.createdAt,
+          };
+          return built;
+        });
         setMoods(fetchedMoods);
         generateChartData(fetchedMoods);
       })
       .catch((error) => console.error("Erreur lors du fetch:", error));
-  }, []);
+  }, [user]);
 
   const moodValue = (mood: string) => {
     switch (mood) {
@@ -75,7 +84,7 @@ const Stat = () => {
       return `${date.getDate()}/${date.getMonth() + 1}`;
     });
 
-    const values = sorted.map((item) => moodValue(item.Mood));
+    const values = sorted.map((item) => moodValue(item.Mood as string));
 
     setChartData({
       labels,
@@ -89,7 +98,7 @@ const Stat = () => {
     ).padStart(2, "0")}`;
 
     const moodForDay = moods.find(
-      (m) => m.Date.split("T")[0] === dateStr
+      (m) => m.Date && m.Date.split && m.Date.split("T")[0] === dateStr
     )?.Mood;
 
     return (
@@ -135,7 +144,6 @@ const Stat = () => {
           contentContainerStyle={{ paddingVertical: 10 }}
         >
           <View style={styles.chartWrapper}>
-            {/* 🧩 Icônes à gauche de l’axe Y */}
             <View style={styles.iconColumn}>
               {(["Super_Happy", "Happy", "Neutre", "Depressed", "Super_Depressed"] as const).map(
                 (mood) => (
@@ -146,7 +154,6 @@ const Stat = () => {
               )}
             </View>
 
-            {/* 📈 Courbe des moods */}
             <LineChart
               data={chartData}
               width={Dimensions.get("window").width * 1.5}
@@ -170,7 +177,7 @@ const Stat = () => {
               withInnerLines={false}
               withVerticalLines={false}
               withHorizontalLines={false}
-              yLabelsOffset={-9999} // cache les labels Y
+              yLabelsOffset={-9999}
             />
           </View>
         </ScrollView>
@@ -225,7 +232,7 @@ const styles = StyleSheet.create({
   },
   iconColumn: {
     width: 50,
-    justifyContent: "space-between", // ⚡ aligne les images sur toute la hauteur
+    justifyContent: "space-between",
     marginRight: 2,
   },
   iconWrapper: {
@@ -242,4 +249,3 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
-

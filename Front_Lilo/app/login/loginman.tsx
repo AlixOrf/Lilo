@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
-const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
+const API_URL = 'http://10.109.253.227:1337/api'; // ton IP Strapi
 
 export default function ManagerLogin() {
   const router = useRouter(); // ✅ Correction principale

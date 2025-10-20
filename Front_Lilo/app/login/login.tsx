@@ -1,3 +1,4 @@
+// app/login/login.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -11,11 +12,14 @@ import {
   Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 
-const API_URL = 'http://10.109.253.232:1337/api';
+const API_URL = 'http://10.109.253.227:1337/api';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setUser } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,15 +47,19 @@ export default function LoginScreen() {
       setLoading(false);
 
       if (data.data && data.data.length > 0) {
-        const utilisateur = data.data[0];
+        // Strapi peut renvoyer data[i].attributes — normaliser pour avoir user.Nom, user.Mail etc.
+        const raw = data.data[0];
+        const utilisateur = raw.attributes ? { ...raw.attributes, id: raw.id } : raw;
 
-        Alert.alert('Bienvenue', `Bonjour ${utilisateur.Nom} 👋`, [
+        // sauvegarde dans le contexte + AsyncStorage via setUser
+        await setUser(utilisateur);
+
+        Alert.alert('Bienvenue', `Bonjour ${utilisateur.Nom || 'Utilisateur'} 👋`, [
           {
             text: 'Continuer',
             onPress: () => {
-              router.push(
-                `/(tabs)/profile-utilisateur?user=${encodeURIComponent(JSON.stringify(utilisateur))}`
-              );
+              // redirige vers la page principale (tabs)
+              router.replace('/(tabs)/profil-utilisateur');
             },
           },
         ]);
@@ -140,7 +148,7 @@ const styles = StyleSheet.create({
   checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 12, justifyContent: 'center', width: '100%' },
   checkboxLabel: { color: '#262524', fontSize: 14, marginLeft: 10, flexShrink: 1 },
   button: { backgroundColor: '#76efa3', paddingVertical: 14, borderRadius: 8, width: '100%', alignItems: 'center', marginTop: 10 },
-  backButton: { backgroundColor: '#b6b0ae', marginTop: 10 }, // couleur différente pour différencier
+  backButton: { backgroundColor: '#b6b0ae', marginTop: 10 },
   buttonDisabled: { backgroundColor: '#b6b0ae' },
   buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
   footerText: { marginTop: 25, color: '#b6b0ae', fontSize: 14, textAlign: 'center', lineHeight: 20 },

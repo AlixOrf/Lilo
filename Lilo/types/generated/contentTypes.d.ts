@@ -599,7 +599,7 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
   };
   attributes: {
     Boisson: Schema.Attribute.Enumeration<
-      ['Eau', 'Caf\u00E9', 'Th\u00E9', 'Soda', 'Sirop', 'Jus']
+      ['Eau', 'Cafe', 'The', 'Soda', 'Sirop', 'Jus']
     >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
