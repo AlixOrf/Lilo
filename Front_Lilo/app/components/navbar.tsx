@@ -20,9 +20,9 @@ type TabItem = {
 };
 
 const tabs: TabItem[] = [
-  { icon: "stats-chart-outline", route: "/(tabs)/stat" },
-  { route: "/(tabs)", image: require("../(tabs)/assets/Super_Happy.png") }, 
-  { icon: "person-outline", route: "/(tabs)/profile-utilisateur" },
+    { name: 'Stats', icon: 'stats-chart-outline', route: '/(tabs)/stat' },
+    { name: 'Accueil', icon: 'home-outline', route: '/(tabs)' },
+    { name: 'Profil', icon: 'person-outline', route: '/(tabs)/profil-utilisateur' },
 ];
 
 const NAVBAR_HEIGHT = 70;

@@ -1,6 +1,8 @@
+// app/(tabs)/profile-utilisateur.tsx
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 
 const COLORS = {
   bg: "#FFFFFF",
@@ -14,23 +16,23 @@ const COLORS = {
 };
 const RADIUS = 20;
 
-function SectionHeader({ title }) {
+function SectionHeader({ title }: { title: string }) {
   return <Text style={styles.sectionTitle}>{title}</Text>;
 }
 
-function AccountCard({ user }) {
+function AccountCard({ user }: { user: any }) {
   return (
     <View style={[styles.accountCard, styles.shadow]}>
       <View style={styles.avatarPlaceholder} />
       <View>
-        <Text style={styles.username}>{user.Nom}</Text>
-        <Text style={styles.subtitle}>{user.Mail}</Text>
+        <Text style={styles.username}>{user?.Nom || 'Utilisateur'}</Text>
+        <Text style={styles.subtitle}>{user?.Mail || ''}</Text>
       </View>
     </View>
   );
 }
 
-function TwoCards({ router }) {
+function TwoCards({ router }: { router: ReturnType<typeof useRouter> }) {
   return (
     <View style={styles.row}>
       <Pressable style={[styles.smallCard, styles.shadow]} onPress={() => router.push('/(tabs)')}>
@@ -48,7 +50,7 @@ function TwoCards({ router }) {
   );
 }
 
-function Pill({ label, icon }) {
+function Pill({ label, icon }: { label: string; icon: string }) {
   return (
     <Pressable style={({ pressed }) => [styles.pill, pressed && { opacity: 0.9 }]}>
       <Text style={styles.pillIcon}>{icon}</Text>
@@ -60,18 +62,12 @@ function Pill({ label, icon }) {
 
 export default function ProfileUtilisateur() {
   const router = useRouter();
-  const { user } = useLocalSearchParams();
-  let parsedUser = null;
-  try {
-    parsedUser = user ? JSON.parse(user) : null;
-  } catch (e) {
-    console.warn('Erreur parsing user:', e);
-  }
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     Alert.alert('Déconnexion', 'Voulez-vous vous déconnecter ?', [
       { text: 'Annuler', style: 'cancel' },
-      { text: 'Oui', onPress: () => router.replace('../login/debut') },
+      { text: 'Oui', onPress: async () => { await logout(); router.replace('/login/debut'); } },
     ]);
   };
 
@@ -80,7 +76,7 @@ export default function ProfileUtilisateur() {
       <Text style={styles.pageTitle}>Profil</Text>
 
       <SectionHeader title="Compte" />
-      {parsedUser ? <AccountCard user={parsedUser} /> : <Text>Aucune info utilisateur</Text>}
+      {user ? <AccountCard user={user} /> : <Text>Aucune info utilisateur</Text>}
 
       <SectionHeader title="Accès rapides" />
       <TwoCards router={router} />
