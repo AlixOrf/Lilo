@@ -1,0 +1,30 @@
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+export default function StatMan() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Statistiques Manager</Text>
+      <Text style={styles.text}>Voici vos données de gestion 📊</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5DC',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#262524',
+    marginBottom: 10,
+  },
+  text: {
+    fontSize: 16,
+    color: '#555',
+  },
+});
