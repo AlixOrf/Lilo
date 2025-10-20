@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function ProfilMan() {
+export default function StatMan() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Profil Manager</Text>
-      <Text style={styles.text}>Bienvenue sur votre espace manager 👋</Text>
+      <Text style={styles.title}>Statistiques Manager</Text>
+      <Text style={styles.text}>Voici vos données de gestion 📊</Text>
     </View>
   );
 }

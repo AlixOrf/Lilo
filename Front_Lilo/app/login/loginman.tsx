@@ -64,7 +64,7 @@ export default function ManagerLogin() {
           text: 'Continuer',
           onPress: () => {
             router.push(
-              `../man/profilman?user=${encodeURIComponent(JSON.stringify(utilisateur))}`
+              `../man/profil-manager?user=${encodeURIComponent(JSON.stringify(utilisateur))}`
             );
           },
         },

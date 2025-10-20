@@ -7,10 +7,13 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { LineChart } from "react-native-chart-kit";
 import { useAuth } from "../context/AuthContext";
+
+const API_URL = "http://10.109.253.232:1337/api/moods"; // localhost ou IP locale
 
 const moodImages: Record<string, any> = {
   Super_Happy: require('../(tabs)/assets/Super_Happy.png'),
@@ -20,9 +23,19 @@ const moodImages: Record<string, any> = {
   Super_Depressed: require('../(tabs)/assets/Super_Depressed.png'),
 };
 
+const drinkImages: Record<string, any> = {
+  Thé: require("./assets/The.png"),
+  Eau: require("./assets/Eau.png"),
+  Café: require("./assets/Cafe.png"),
+  Soda: require("./assets/Soda.png"),
+  Sirop: require("./assets/Sirop.png"),
+  Jus: require("./assets/Jus.png"),
+};
+
 interface MoodEntry {
   id: number;
   Mood: keyof typeof moodImages;
+  Boisson: keyof typeof drinkImages;
   Date: string;
 }
 
@@ -32,10 +45,14 @@ const Stat = () => {
     labels: [] as string[],
     datasets: [{ data: [] as number[] }],
   });
+  const [topDrinks, setTopDrinks] = useState<{ name: string; count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const chartHeight = 360;
   const { user } = useAuth();
 
+  // 🧠 Récupération des données depuis Strapi
   useEffect(() => {
     // si tu veux filtrer par utilisateur, tu peux append ?filters[utilisateur][$eq]=user.id
     const url = 'http://10.109.253.140:1337/api/moods';
@@ -57,23 +74,19 @@ const Stat = () => {
       .catch((error) => console.error("Erreur lors du fetch:", error));
   }, [user]);
 
+  // 🔢 Conversion du mood en valeur numérique
   const moodValue = (mood: string) => {
     switch (mood) {
-      case "Super_Happy":
-        return 5;
-      case "Happy":
-        return 4;
-      case "Neutre":
-        return 3;
-      case "Depressed":
-        return 2;
-      case "Super_Depressed":
-        return 1;
-      default:
-        return 0;
+      case "Super_Happy": return 5;
+      case "Happy": return 4;
+      case "Neutre": return 3;
+      case "Depressed": return 2;
+      case "Super_Depressed": return 1;
+      default: return 0;
     }
   };
 
+  // 📈 Génération des données du graphique
   const generateChartData = (data: MoodEntry[]) => {
     const sorted = [...data].sort(
       (a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime()
@@ -92,10 +105,9 @@ const Stat = () => {
     });
   };
 
-  const renderDay = (day: any) => {
-    const dateStr = `${day.year}-${String(day.month).padStart(2, "0")}-${String(
-      day.day
-    ).padStart(2, "0")}`;
+  // 🧮 Calcul du top 3 des boissons
+  const computeTopDrinks = (data: MoodEntry[]) => {
+    const drinkCount: Record<string, number> = {};
 
     const moodForDay = moods.find(
       (m) => m.Date && m.Date.split && m.Date.split("T")[0] === dateStr
@@ -104,38 +116,63 @@ const Stat = () => {
     return (
       <View style={styles.dayContainer}>
         {moodForDay ? (
-          <Image source={moodImages[moodForDay]} style={styles.moodImage} />
+          <Image source={moodImages[moodForDay]} style={styles.moodImageFull} />
         ) : (
-          <View style={styles.emptyDay} />
+          <Text style={styles.dayNumber}>{day.day}</Text>
         )}
       </View>
     );
   };
 
+  // 🧭 État de chargement ou d’erreur
+  if (loading) {
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator size="large" color="#3dbf86" />
+        <Text style={styles.loadingText}>Chargement des statistiques...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingScreen}>
+        <Text style={[styles.loadingText, { color: "#ea654e" }]}>{error}</Text>
+      </View>
+    );
+  }
+
+  // 🖼️ Contenu principal
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 200 }}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Calendrier des Moods</Text>
+      <Text style={styles.header}>🌤️ Tes Statistiques du Mois</Text>
 
-      <Calendar
-        // @ts-ignore
-        dayComponent={({ date }) => renderDay(date)}
-        hideExtraDays
-        theme={{
-          backgroundColor: "#ffffff",
-          calendarBackground: "#ffffff",
-          textSectionTitleColor: "#3dbf86",
-          monthTextColor: "#262524",
-          todayTextColor: "#3dbf86",
-          textMonthFontWeight: "bold",
-          textDayFontSize: 16,
-        }}
-      />
+      {/* 🗓️ Calendrier */}
+      <View style={styles.sectionCard}>
+        <Text style={styles.title}>🗓️ Calendrier des Moods</Text>
+        <Calendar
+          // @ts-ignore
+          dayComponent={({ date }) => renderDay(date)}
+          hideExtraDays
+          theme={{
+            backgroundColor: "#ffffff",
+            calendarBackground: "#ffffff",
+            textSectionTitleColor: "#3dbf86",
+            monthTextColor: "#262524",
+            todayTextColor: "#3dbf86",
+            textMonthFontWeight: "bold",
+            textDayFontSize: 16,
+          }}
+        />
+      </View>
 
-      <Text style={styles.title}>Évolution du Mood</Text>
+      {/* 📈 Graphique */}
+      <View style={styles.sectionCard}>
+        <Text style={styles.title}>📈 Évolution du Mood</Text>
 
       {chartData.labels.length > 0 ? (
         <ScrollView
@@ -153,6 +190,11 @@ const Stat = () => {
                 )
               )}
             </View>
+          </ScrollView>
+        ) : (
+          <Text style={styles.loadingText}>Aucune donnée à afficher</Text>
+        )}
+      </View>
 
             <LineChart
               data={chartData}
@@ -190,18 +232,33 @@ const Stat = () => {
 
 export default Stat;
 
+// 🎨 Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-    paddingTop: 40,
+  container: { flex: 1, backgroundColor: "#ffffff" },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#3dbf86",
+    marginVertical: 20,
+  },
+  sectionCard: {
+    backgroundColor: "#dfdad7",
+    marginHorizontal: 15,
+    borderRadius: 20,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#262524",
     textAlign: "center",
-    marginVertical: 10,
+    marginBottom: 10,
   },
   dayContainer: {
     justifyContent: "center",
@@ -209,20 +266,15 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width / 7 - 5,
     height: 50,
   },
-  moodImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  emptyDay: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "transparent",
-  },
-  chartWrapper: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+  moodImageFull: { width: 45, height: 45, resizeMode: "contain" },
+  dayNumber: { fontSize: 14, color: "#b6b0ae", fontWeight: "600" },
+  chartWrapper: { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 10 },
+  chart: { marginVertical: 10, borderRadius: 16 },
+  iconColumn: { width: 50, justifyContent: "space-between", marginRight: 5 },
+  iconWrapper: { alignItems: "center" },
+  axisIcon: { width: 55, height: 55, resizeMode: "contain" },
+  loadingScreen: {
+    flex: 1,
     justifyContent: "center",
     paddingHorizontal: 10,
   },
@@ -237,15 +289,20 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     alignItems: "center",
+    backgroundColor: "#fff",
   },
-  axisIcon: {
-    width: 55,
-    height: 55,
-    resizeMode: "contain",
+  loadingText: { textAlign: "center", color: "#949190", marginTop: 10 },
+  drinkContainer: {
+    backgroundColor: "#ffffff",
+    margin: 15,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: "#3dbf86",
   },
-  loadingText: {
-    textAlign: "center",
-    color: "#949190",
-    marginTop: 10,
-  },
+  drinkList: { flexDirection: "row", justifyContent: "space-around", marginTop: 15 },
+  drinkItem: { alignItems: "center", borderRadius: 16, padding: 10, width: 100 },
+  drinkImage: { width: 50, height: 50, resizeMode: "contain" },
+  drinkName: { marginTop: 5, fontWeight: "600", color: "#262524" },
+  drinkCount: { color: "#ea654e", fontWeight: "bold" },
 });
