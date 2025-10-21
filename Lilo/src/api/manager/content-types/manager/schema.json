@@ -28,6 +28,9 @@
     "Mot_de_passe": {
       "type": "string",
       "required": true
+    },
+    "Idman": {
+      "type": "uid"
     }
   }
 }
