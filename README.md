@@ -26,6 +26,8 @@ Avant de commencer, assurez-vous d'avoir installé les éléments suivants sur v
   - **react-native-chart-kit**
   - **strapi-plugin-multi-select**
   - **react-native-calendars**
+  - **react-native-async-storage/async-storage** 
+  - **react-native-safe-area-context** 
 
 ## **Installation**
 
@@ -42,6 +44,7 @@ Installez les dépendances JavaScript :
 ```bash
 cd Lilo
 npm i
+npx expo install
 ```
 
 Activez l'environnement virtuel :
@@ -74,6 +77,7 @@ Lilo/
     ├── app/             
         ├── (tabs)/      # Application Employé
         ├── components/  # Différents components de l'application
+        ├── context/     # Permettant aux utilisateurs de rester connecté
         ├── login/       # Point d'entrée de l'application
         ├── man/         # Application Manager
 ├── Lilo                 # Application Strapi
