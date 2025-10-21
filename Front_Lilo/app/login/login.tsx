@@ -14,7 +14,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = 'http://10.109.253.227:1337/api';
+const API_URL = 'http://10.109.253.232:1337/api';
 
 export default function LoginScreen() {
   const router = useRouter();
