@@ -77,6 +77,10 @@
     },
     "Date": {
       "type": "datetime"
+    },
+    "idMood": {
+      "type": "uid",
+      "required": true
     }
   }
 }

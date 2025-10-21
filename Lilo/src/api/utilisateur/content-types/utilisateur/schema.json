@@ -34,6 +34,10 @@
     "Mot_de_passe": {
       "type": "string",
       "required": true
+    },
+    "idUtilisateur": {
+      "type": "uid",
+      "required": true
     }
   }
 }

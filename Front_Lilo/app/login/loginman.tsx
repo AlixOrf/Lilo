@@ -11,11 +11,13 @@ import {
   Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext'; // ✅ <--- IMPORTANT
 
 const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
 
 export default function ManagerLogin() {
-  const router = useRouter(); // ✅ Correction principale
+  const router = useRouter();
+  const { setManager } = useAuth(); // ✅ utilise ton AuthContext
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,6 +36,7 @@ export default function ManagerLogin() {
     }
 
     setLoading(true);
+    console.log('🔍 Tentative de connexion pour', email);
 
     try {
       const response = await fetch(
@@ -43,35 +46,43 @@ export default function ManagerLogin() {
       setLoading(false);
 
       if (!data.data || data.data.length === 0) {
+        console.warn('⚠️ Aucun manager trouvé avec cet email');
         Alert.alert('Erreur', 'Aucun manager trouvé avec cet e-mail.');
         return;
       }
 
-      // Selon ta structure Strapi, les données sont peut-être dans .attributes :
-      const utilisateur = data.data[0].attributes || data.data[0];
+      const manager = data.data[0].attributes || data.data[0];
+      console.log('✅ Manager trouvé :', manager);
 
       // Vérification du mot de passe
-      if (utilisateur.Mot_de_passe !== password) {
+      if (manager.Mot_de_passe !== password) {
+        console.warn('❌ Mot de passe incorrect');
         Alert.alert('Erreur', 'Mot de passe incorrect.');
         return;
       }
 
-      const nom = utilisateur.Nom || utilisateur.Mail || 'Manager';
+      if (!manager.Idman) {
+        console.warn('⚠️ Le manager ne contient pas de champ Idman');
+      } else {
+        console.log('✅ Manager ID trouvé :', manager.Idman);
+      }
 
-      // Pop-up et redirection
+      // Sauvegarde dans le contexte Auth
+      await setManager(manager);
+      console.log('💾 Manager sauvegardé dans AuthContext', manager);
+
+      const nom = manager.Nom || manager.Mail || 'Manager';
       Alert.alert('Bienvenue', `Bonjour ${nom} 👋`, [
         {
           text: 'Continuer',
           onPress: () => {
-            router.push(
-              `../man/profil-manager?user=${encodeURIComponent(JSON.stringify(utilisateur))}`
-            );
+            router.push('../man/profil-manager');
           },
         },
       ]);
     } catch (error) {
       setLoading(false);
-      console.error(error);
+      console.error('🔥 Erreur login manager :', error);
       Alert.alert('Erreur', 'Impossible de contacter le serveur.');
     }
   };
@@ -135,13 +146,12 @@ export default function ManagerLogin() {
         )}
       </TouchableOpacity>
 
-        <TouchableOpacity
+      <TouchableOpacity
         style={[styles.button, styles.backButton]}
         onPress={() => router.replace('/login/debut')}
-        >
+      >
         <Text style={styles.buttonText}>Retour à l'accueil</Text>
-        </TouchableOpacity>
-
+      </TouchableOpacity>
 
       <Text style={styles.footerText}>
         Vous êtes sur la page de connexion managers !
@@ -150,105 +160,21 @@ export default function ManagerLogin() {
   );
 }
 
+// styles inchangés
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  logo: {
-    width: 200,
-    height: 100,
-    marginBottom: 10,
-    resizeMode: 'contain',
-  },
-  title: {
-    color: '#262524',
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    backgroundColor: '#b6b0ae',
-    color: '#262524',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    backgroundColor: '#b6b0ae',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#334155',
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  passwordInput: {
-    flex: 1,
-    color: '#262524',
-    fontSize: 16,
-    paddingVertical: 12,
-  },
-  showPasswordButton: {
-    paddingLeft: 10,
-  },
-  showPasswordText: {
-    color: '#262524',
-    fontWeight: '500',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 12,
-    justifyContent: 'center',
-    width: '100%',
-  },
-  checkboxLabel: {
-    color: '#262524',
-    fontSize: 14,
-    marginLeft: 10,
-    flexShrink: 1,
-  },
-  button: {
-    backgroundColor: '#76efa3',
-    paddingVertical: 14,
-    borderRadius: 8,
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  backButton: {
-    backgroundColor: '#b6b0ae',
-    marginTop: 10,
-  },
-  buttonDisabled: {
-    backgroundColor: '#b6b0ae',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  footerText: {
-    marginTop: 25,
-    color: '#b6b0ae',
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  backButton: {
-  backgroundColor: '#b6b0ae', // gris
-  marginTop: 10,
-  },
-
+  container: { flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
+  logo: { width: 200, height: 100, marginBottom: 10, resizeMode: 'contain' },
+  title: { color: '#262524', fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
+  input: { width: '100%', backgroundColor: '#b6b0ae', color: '#262524', borderRadius: 8, paddingVertical: 12, paddingHorizontal: 16, fontSize: 16, marginBottom: 12, borderWidth: 1, borderColor: '#334155' },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', backgroundColor: '#b6b0ae', borderRadius: 8, borderWidth: 1, borderColor: '#334155', paddingHorizontal: 16, marginBottom: 12 },
+  passwordInput: { flex: 1, color: '#262524', fontSize: 16, paddingVertical: 12 },
+  showPasswordButton: { paddingLeft: 10 },
+  showPasswordText: { color: '#262524', fontWeight: '500' },
+  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 12, justifyContent: 'center', width: '100%' },
+  checkboxLabel: { color: '#262524', fontSize: 14, marginLeft: 10, flexShrink: 1 },
+  button: { backgroundColor: '#76efa3', paddingVertical: 14, borderRadius: 8, width: '100%', alignItems: 'center', marginTop: 10 },
+  buttonDisabled: { backgroundColor: '#b6b0ae' },
+  backButton: { backgroundColor: '#b6b0ae', marginTop: 10 },
+  buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
+  footerText: { marginTop: 25, color: '#b6b0ae', fontSize: 14, textAlign: 'center', lineHeight: 20 },
 });
