@@ -77,6 +77,9 @@
     },
     "Date": {
       "type": "datetime"
+    },
+    "idMood": {
+      "type": "uid"
     }
   }
 }

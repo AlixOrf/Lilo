@@ -39,6 +39,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      // 🔍 Vérifie si l'utilisateur existe dans Strapi
       const response = await fetch(
         `${API_URL}/utilisateurs?filters[Mail][$eq]=${encodeURIComponent(email)}&filters[Mot_de_passe][$eq]=${encodeURIComponent(password)}`
       );
@@ -47,39 +48,36 @@ export default function LoginScreen() {
       setLoading(false);
 
       if (data.data && data.data.length > 0) {
-        // Strapi peut renvoyer data[i].attributes — normaliser pour avoir user.Nom, user.Mail etc.
-        const raw = data.data[0];
-        const utilisateur = raw.attributes ? { ...raw.attributes, id: raw.id } : raw;
+        const rawUser = data.data[0];
+        const attributes = rawUser.attributes || rawUser;
 
-        // sauvegarde dans le contexte + AsyncStorage via setUser
+        const utilisateur = {
+          idUtilisateur: rawUser.id, // ⚡ on stocke l'id numérique directement
+          Nom: attributes.Nom,
+          Mail: attributes.Mail,
+        };
+
+        console.log('✅ Utilisateur connecté :', utilisateur);
+
+        // Sauvegarde dans le AuthContext
         await setUser(utilisateur);
 
         Alert.alert('Bienvenue', `Bonjour ${utilisateur.Nom || 'Utilisateur'} 👋`, [
-          {
-            text: 'Continuer',
-            onPress: () => {
-              // redirige vers la page principale (tabs)
-              router.replace('/(tabs)/profil-utilisateur');
-            },
-          },
+          { text: 'Continuer', onPress: () => router.replace('/(tabs)/home') },
         ]);
       } else {
         Alert.alert('Erreur', 'Identifiants incorrects.');
       }
     } catch (error) {
       setLoading(false);
-      console.error(error);
+      console.error('Erreur login:', error);
       Alert.alert('Erreur', 'Impossible de contacter le serveur.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../(tabs)/assets/Super_Happy.png')}
-        style={styles.logo}
-      />
-
+      <Image source={require('../(tabs)/assets/Super_Happy.png')} style={styles.logo} />
       <Text style={styles.title}>Connexion</Text>
 
       <TextInput

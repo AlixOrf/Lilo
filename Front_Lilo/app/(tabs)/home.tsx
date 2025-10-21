@@ -72,7 +72,7 @@ export default function HomeScreen() {
   // 🧭 Récupération de l’utilisateur connecté depuis le context
   const { user } = useAuth();
   const utilisateur = user;
-  const utilisateurId = utilisateur?.id;
+  const utilisateurId = utilisateur?.idUtilisateur; // ✅ On utilise ton idUtilisateur
 
   const [selectedEmotion1, setSelectedEmotion1] = useState<number | null>(null);
   const [selectedEmotion2, setSelectedEmotion2] = useState<number[]>([]);
@@ -82,6 +82,16 @@ export default function HomeScreen() {
   const sendSelectionToBackend = async () => {
     if (!utilisateurId) {
       Alert.alert('❌ Erreur', 'Utilisateur non reconnu. Veuillez vous reconnecter.');
+      return;
+    }
+
+    // ✅ Convertir idUtilisateur → entier si c’est une chaîne
+    const idNumeric = typeof utilisateurId === 'string'
+      ? parseInt(utilisateurId.replace(/\D/g, ''), 10)
+      : utilisateurId;
+
+    if (isNaN(idNumeric)) {
+      Alert.alert('⚠️ Erreur', 'ID utilisateur invalide : ' + utilisateurId);
       return;
     }
 
@@ -98,7 +108,7 @@ export default function HomeScreen() {
     try {
       const dataToSend: any = {
         data: {
-          utilisateur: utilisateurId,
+          utilisateur: idNumeric, // ✅ On envoie un ID numérique
         },
       };
 

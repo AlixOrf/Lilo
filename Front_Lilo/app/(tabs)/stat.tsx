@@ -1,4 +1,3 @@
-// app/(tabs)/stat.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -11,16 +10,15 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { LineChart } from "react-native-chart-kit";
-import { useAuth } from "../context/AuthContext";
 
 const API_URL = "http://10.109.253.232:1337/api/moods"; // localhost ou IP locale
 
 const moodImages: Record<string, any> = {
-  Super_Happy: require('../(tabs)/assets/Super_Happy.png'),
-  Happy: require('../(tabs)/assets/Happy.png'),
-  Neutre: require('../(tabs)/assets/Neutre.png'),
-  Depressed: require('../(tabs)/assets/Depressed.png'),
-  Super_Depressed: require('../(tabs)/assets/Super_Depressed.png'),
+  Super_Happy: require("./assets/Super_Happy.png"),
+  Happy: require("./assets/Happy.png"),
+  Neutre: require("./assets/Neutre.png"),
+  Depressed: require("./assets/Depressed.png"),
+  Super_Depressed: require("./assets/Super_Depressed.png"),
 };
 
 const drinkImages: Record<string, any> = {
@@ -50,29 +48,53 @@ const Stat = () => {
   const [error, setError] = useState<string | null>(null);
 
   const chartHeight = 360;
-  const { user } = useAuth();
 
   // 🧠 Récupération des données depuis Strapi
   useEffect(() => {
-    // si tu veux filtrer par utilisateur, tu peux append ?filters[utilisateur][$eq]=user.id
-    const url = 'http://10.109.253.140:1337/api/moods';
-    fetch(url)
-      .then((response) => response.json())
-      .then((json) => {
-        const fetchedMoods = json.data.map((item: any) => {
-          // gérer si les données sont en attributes ou en flat object
-          const built = {
-            id: item.id,
-            Mood: item.Mood || item.attributes?.Mood || item.attributes?.mood,
-            Date: item.Date || item.attributes?.Date || item.attributes?.createdAt,
-          };
-          return built;
-        });
-        setMoods(fetchedMoods);
-        generateChartData(fetchedMoods);
-      })
-      .catch((error) => console.error("Erreur lors du fetch:", error));
-  }, [user]);
+    let isMounted = true; // pour éviter les setState après démontage
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
+
+        const json = await res.json();
+
+        // Vérifie le format de la réponse Strapi
+        if (!json.data || !Array.isArray(json.data)) {
+          throw new Error("Format de données inattendu depuis Strapi");
+        }
+
+        // Compatibilité Strapi v4 / v5 (données dans .attributes)
+        const fetchedMoods = json.data.map((item: any) => ({
+          id: item.id,
+          Mood: item.attributes?.Mood ?? item.Mood,
+          Boisson: item.attributes?.Boisson ?? item.Boisson,
+          Date: item.attributes?.Date ?? item.Date,
+        }));
+
+        if (isMounted) {
+          setMoods(fetchedMoods);
+          generateChartData(fetchedMoods);
+          computeTopDrinks(fetchedMoods);
+          setError(null);
+        }
+      } catch (err: any) {
+        console.error("Erreur lors du fetch:", err);
+        if (isMounted) setError("Impossible de charger les statistiques 😢");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    // ⏳ Attendre un peu pour éviter d’appeler Strapi pendant le build
+    const timer = setTimeout(fetchData, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      isMounted = false;
+    };
+  }, []);
 
   // 🔢 Conversion du mood en valeur numérique
   const moodValue = (mood: string) => {
@@ -97,7 +119,7 @@ const Stat = () => {
       return `${date.getDate()}/${date.getMonth() + 1}`;
     });
 
-    const values = sorted.map((item) => moodValue(item.Mood as string));
+    const values = sorted.map((item) => moodValue(item.Mood));
 
     setChartData({
       labels,
@@ -109,9 +131,24 @@ const Stat = () => {
   const computeTopDrinks = (data: MoodEntry[]) => {
     const drinkCount: Record<string, number> = {};
 
-    const moodForDay = moods.find(
-      (m) => m.Date && m.Date.split && m.Date.split("T")[0] === dateStr
-    )?.Mood;
+    data.forEach((item) => {
+      if (item.Boisson) {
+        drinkCount[item.Boisson] = (drinkCount[item.Boisson] || 0) + 1;
+      }
+    });
+
+    const sorted = Object.entries(drinkCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name, count]) => ({ name, count }));
+
+    setTopDrinks(sorted);
+  };
+
+  // 📅 Rendu personnalisé du jour dans le calendrier
+  const renderDay = (day: any) => {
+    const dateStr = `${day.year}-${String(day.month).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
+    const moodForDay = moods.find((m) => m.Date.split("T")[0] === dateStr)?.Mood;
 
     return (
       <View style={styles.dayContainer}>
@@ -174,21 +211,40 @@ const Stat = () => {
       <View style={styles.sectionCard}>
         <Text style={styles.title}>📈 Évolution du Mood</Text>
 
-      {chartData.labels.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 10 }}
-        >
-          <View style={styles.chartWrapper}>
-            <View style={styles.iconColumn}>
-              {(["Super_Happy", "Happy", "Neutre", "Depressed", "Super_Depressed"] as const).map(
-                (mood) => (
-                  <View key={mood} style={styles.iconWrapper}>
-                    <Image source={moodImages[mood]} style={styles.axisIcon} />
-                  </View>
-                )
-              )}
+        {chartData.labels.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.chartWrapper}>
+              <View style={styles.iconColumn}>
+                {(["Super_Happy", "Happy", "Neutre", "Depressed", "Super_Depressed"] as const).map(
+                  (mood) => (
+                    <View key={mood} style={styles.iconWrapper}>
+                      <Image source={moodImages[mood]} style={styles.axisIcon} />
+                    </View>
+                  )
+                )}
+              </View>
+
+              <LineChart
+                data={chartData}
+                width={Dimensions.get("window").width * 1.5}
+                height={chartHeight}
+                chartConfig={{
+                  backgroundColor: "#ffffff",
+                  backgroundGradientFrom: "#ffffff",
+                  backgroundGradientTo: "#ffffff",
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(61, 191, 134, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(38, 37, 36, ${opacity})`,
+                  propsForDots: { r: "7", strokeWidth: "2", stroke: "#ffde52" },
+                }}
+                bezier
+                fromZero
+                withInnerLines={false}
+                withVerticalLines={false}
+                withHorizontalLines={false}
+                yLabelsOffset={-9999}
+                style={styles.chart}
+              />
             </View>
           </ScrollView>
         ) : (
@@ -196,36 +252,28 @@ const Stat = () => {
         )}
       </View>
 
-            <LineChart
-              data={chartData}
-              width={Dimensions.get("window").width * 1.5}
-              height={chartHeight}
-              chartConfig={{
-                backgroundColor: "#ffffff",
-                backgroundGradientFrom: "#ffffff",
-                backgroundGradientTo: "#ffffff",
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(61, 191, 134, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(38, 37, 36, ${opacity})`,
-                propsForDots: {
-                  r: "6",
-                  strokeWidth: "2",
-                  stroke: "#3dbf86",
-                },
-              }}
-              bezier
-              style={styles.chart}
-              fromZero
-              withInnerLines={false}
-              withVerticalLines={false}
-              withHorizontalLines={false}
-              yLabelsOffset={-9999}
-            />
-          </View>
-        </ScrollView>
-      ) : (
-        <Text style={styles.loadingText}>Chargement du graphique...</Text>
-      )}
+      <View style={styles.drinkContainer}>
+        <Text style={styles.title}>🧃 Top 3 des boissons du mois</Text>
+        <View style={styles.drinkList}>
+          {topDrinks.length > 0 ? (
+            topDrinks.map((drink, index) => (
+              <View
+                key={drink.name}
+                style={[
+                  styles.drinkItem,
+                  { backgroundColor: index === 0 ? "#ffde52" : "#76efa3" },
+                ]}
+              >
+                <Image source={drinkImages[drink.name]} style={styles.drinkImage} />
+                <Text style={styles.drinkName}>{drink.name}</Text>
+                <Text style={styles.drinkCount}>{drink.count}x</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.loadingText}>Aucune boisson enregistrée</Text>
+          )}
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -276,18 +324,6 @@ const styles = StyleSheet.create({
   loadingScreen: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 10,
-  },
-  chart: {
-    marginVertical: 10,
-    borderRadius: 16,
-  },
-  iconColumn: {
-    width: 50,
-    justifyContent: "space-between",
-    marginRight: 2,
-  },
-  iconWrapper: {
     alignItems: "center",
     backgroundColor: "#fff",
   },

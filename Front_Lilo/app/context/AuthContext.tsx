@@ -2,7 +2,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type User = Record<string, any> | null;
+type User = {
+  idUtilisateur: number; // ⚡ maintenant c'est un nombre
+  Nom?: string;
+  Mail?: string;
+  jwt?: string; // On garde le token JWT si besoin
+  [key: string]: any;
+} | null;
 
 type AuthContextValue = {
   user: User;
@@ -24,13 +30,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // charge user au démarrage
+  // 🔄 Charger le user au démarrage
   useEffect(() => {
     const loadUser = async () => {
       try {
         const raw = await AsyncStorage.getItem('user');
         if (raw) {
-          setUserState(JSON.parse(raw));
+          const parsed = JSON.parse(raw);
+          console.log('💡 AuthContext loaded user:', parsed);
+          setUserState(parsed);
         }
       } catch (err) {
         console.error('AuthContext: failed to load user', err);
@@ -71,5 +79,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook pratique
 export const useAuth = () => useContext(AuthContext);
