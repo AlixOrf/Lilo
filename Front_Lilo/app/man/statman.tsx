@@ -170,7 +170,7 @@ useEffect(() => {
   return (
     <ScrollView style={{ flex:1, backgroundColor:"#fff", padding:16 }}>
       <View style={styles.transparentBlock} />
-      <Text style={styles.title}>📊 Statistiques de ton équipe</Text>
+      <Text style={styles.title}>Statistiques de votre équipe</Text>
 
       <View style={styles.grayBox}>
         <Calendar
