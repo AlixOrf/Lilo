@@ -65,7 +65,7 @@ useEffect(() => {
 
       // 2️⃣ Récupérer tous les moods
       console.log("📌 Fetching moods");
-      const resMoods = await fetch(`http://10.109.253.232:1337/api/moods?populate=utilisateur`);
+      const resMoods = await fetch(`http://10.109.253.112:1337/api/moods?populate=utilisateur`);
       const moodsJson = await resMoods.json();
       console.log("📌 moodsJson brut:", moodsJson);
 

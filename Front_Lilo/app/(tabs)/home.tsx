@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   scroll: {
     paddingTop: 18,
     alignItems: 'center',
-    paddingBottom: 120,
+    paddingBottom: 10,
   },
   title: { fontSize: 18, fontWeight: '700', marginBottom: 25, color: '#262524' },
   card: {
@@ -274,7 +274,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 40,
-    marginBottom: 60,
     backgroundColor: '#3dbf86',
     paddingVertical: 14,
     paddingHorizontal: 50,

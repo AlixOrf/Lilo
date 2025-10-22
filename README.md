@@ -38,13 +38,13 @@ Installez les dépendances JavaScript :
 ```bash
 cd Front_Lilo
 npm i
+npx expo install
 ```
 ### **Installation des dépendances Strapi (backend)**
 Installez les dépendances JavaScript :
 ```bash
 cd Lilo
 npm i
-npx expo install
 ```
 
 Activez l'environnement virtuel :
@@ -52,7 +52,27 @@ Activez l'environnement virtuel :
 ```bash
 npm run develop
 ```
-
+### **Modification des URL avec votre adresse IP**
+```bash
+Lilo/
+├── Front_Lilo/      
+    ├── app/             
+        ├── (tabs)/    
+          ├── home.tsx :
+            -  l.88
+            -  l.109
+          ├── stat.tsx :
+            - l.15
+        ├── login/  
+          ├── login.tsx : 
+            - l.16
+          ├── loginman.tsx : 
+            - l.16    
+        ├── man/
+          ├── statman.tsx :
+              - l.50 
+              - l.68         
+```
 ## **Fonctionnalités**
 
 **Connexion en tant qu'employer :** Connexion en tant que employé de l'entreprise, pouvant entrer leur "mood" et les consulter. 
