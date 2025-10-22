@@ -52,6 +52,9 @@ Activez l'environnement virtuel :
 ```bash
 npm run develop
 ```
+Connectez-vous à Strapi puis allez dans **Settings** -> **Users & Permissions plugin** -> **Roles** et donnez tout les accès à l'utilisateur "Public"
+Créez dans **Content Manager** vos différentes équipes, les employés dans **utilisateur** et les managers dans **manager**
+
 ### **Modification des URL avec votre adresse IP**
 ```bash
 Lilo/
