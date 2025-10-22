@@ -567,6 +567,7 @@ export interface ApiManagerManager extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    Idman: Schema.Attribute.UID;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -574,8 +575,8 @@ export interface ApiManagerManager extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     Mail: Schema.Attribute.Email & Schema.Attribute.Required;
-    Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
-    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    Mot_de_passe: Schema.Attribute.String & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -599,7 +600,7 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
   };
   attributes: {
     Boisson: Schema.Attribute.Enumeration<
-      ['Eau', 'Caf\u00E9', 'Th\u00E9', 'Soda', 'Sirop', 'Jus']
+      ['Eau', 'Cafe', 'The', 'Soda', 'Sirop', 'Jus']
     >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -615,7 +616,6 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
           'Optimiste',
           'Heureux',
           'Enthousiaste',
-          'Calme',
           'Reconnaissant',
           'D\u00E9prim\u00E9',
           'Solitaire',
@@ -626,10 +626,10 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
           'Fatigu\u00E9',
           'Stress\u00E9',
           'Ennuy\u00E9',
-          'Neutre',
         ]
       > &
       Schema.Attribute.DefaultTo<'[]'>;
+    idMood: Schema.Attribute.UID & Schema.Attribute.Required;
     Image: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true
@@ -639,7 +639,7 @@ export interface ApiMoodMood extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'> &
       Schema.Attribute.Private;
     Mood: Schema.Attribute.Enumeration<
-      ['Super Happy', 'Happy', 'Neutre', 'Depressed', 'Super Depressed']
+      ['Super_Happy', 'Happy', 'Neutre', 'Depressed', 'Super_Depressed']
     > &
       Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
@@ -667,6 +667,7 @@ export interface ApiUtilisateurUtilisateur extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    idUtilisateur: Schema.Attribute.UID & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -676,8 +677,8 @@ export interface ApiUtilisateurUtilisateur extends Struct.CollectionTypeSchema {
     Mail: Schema.Attribute.Email & Schema.Attribute.Required;
     manager: Schema.Attribute.Relation<'manyToOne', 'api::manager.manager'>;
     moods: Schema.Attribute.Relation<'oneToMany', 'api::mood.mood'>;
-    Mot_de_passe: Schema.Attribute.Password & Schema.Attribute.Required;
-    Nom: Schema.Attribute.String & Schema.Attribute.Required;
+    Mot_de_passe: Schema.Attribute.String & Schema.Attribute.Required;
+    Nom: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

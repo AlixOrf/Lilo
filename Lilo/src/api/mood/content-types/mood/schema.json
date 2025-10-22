@@ -15,11 +15,11 @@
       "type": "enumeration",
       "required": true,
       "enum": [
-        "Super Happy",
+        "Super_Happy",
         "Happy",
         "Neutre",
         "Depressed",
-        "Super Depressed"
+        "Super_Depressed"
       ]
     },
     "Emotion": {
@@ -33,7 +33,6 @@
         "Optimiste",
         "Heureux",
         "Enthousiaste",
-        "Calme",
         "Reconnaissant",
         "Déprimé",
         "Solitaire",
@@ -43,16 +42,15 @@
         "Agacé",
         "Fatigué",
         "Stressé",
-        "Ennuyé",
-        "Neutre"
+        "Ennuyé"
       ]
     },
     "Boisson": {
       "type": "enumeration",
       "enum": [
         "Eau",
-        "Café",
-        "Thé",
+        "Cafe",
+        "The",
         "Soda",
         "Sirop",
         "Jus"
@@ -79,6 +77,9 @@
     },
     "Date": {
       "type": "datetime"
+    },
+    "idMood": {
+      "type": "uid"
     }
   }
 }
