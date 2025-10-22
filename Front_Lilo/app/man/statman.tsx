@@ -47,7 +47,7 @@ useEffect(() => {
       // 1️⃣ Récupérer les utilisateurs du manager
       console.log("📌 Fetching utilisateurs pour manager Idman:", manager.Idman);
       const resUsers = await fetch(
-        `http://10.109.253.232:1337/api/utilisateurs?filters[manager][Idman][$eq]=${manager.Idman}`
+        `http://10.109.253.112:1337/api/utilisateurs?filters[manager][Idman][$eq]=${manager.Idman}`
       );
       const usersJson = await resUsers.json();
       const utilisateurs = usersJson.data || [];

@@ -10,8 +10,9 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { LineChart } from "react-native-chart-kit";
+import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://10.109.253.232:1337/api/moods";
+const API_URL = "http://10.109.253.112:1337/api/moods";
 
 const moodImages: Record<string, any> = {
   Super_Happy: require("./assets/Super_Happy.png"),

@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext'; // ✅ <--- IMPORTANT
 
-const API_URL = 'http://10.109.253.232:1337/api'; // ton IP Strapi
+const API_URL = 'http://10.109.253.112:1337/api'; // ton IP Strapi
 
 export default function ManagerLogin() {
   const router = useRouter();

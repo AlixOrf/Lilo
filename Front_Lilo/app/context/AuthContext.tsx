@@ -2,20 +2,30 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// --- TYPES ---
+type User = {
+  idUtilisateur: number; // champ Strapi
+  Nom?: string;
+  Mail?: string;
+  jwt?: string;
+  [key: string]: any;
+} | null;
+
 type Manager = {
   Idman: string;
   [key: string]: any;
 } | null;
 
 type AuthContextValue = {
-  user: Record<string, any> | null;
+  user: User;
   manager: Manager;
-  setUser: (u: Record<string, any> | null) => void;
+  setUser: (u: User) => void;
   setManager: (m: Manager) => void;
   logout: () => Promise<void>;
   loading: boolean;
 };
 
+// --- VALEUR PAR DÉFAUT ---
 const defaultValue: AuthContextValue = {
   user: null,
   manager: null,
@@ -27,27 +37,30 @@ const defaultValue: AuthContextValue = {
 
 export const AuthContext = createContext<AuthContextValue>(defaultValue);
 
+// --- PROVIDER ---
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUserState] = useState<Record<string, any> | null>(null);
+  const [user, setUserState] = useState<User>(null);
   const [manager, setManagerState] = useState<Manager>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // charge user et manager au démarrage
+  // 🔄 CHARGEMENT INITIAL user + manager
   useEffect(() => {
     const loadAuth = async () => {
       try {
-        const rawUser = await AsyncStorage.getItem('user');
-        const rawManager = await AsyncStorage.getItem('manager');
+        const [rawUser, rawManager] = await Promise.all([
+          AsyncStorage.getItem('user'),
+          AsyncStorage.getItem('manager'),
+        ]);
 
         if (rawUser) {
           const parsedUser = JSON.parse(rawUser);
-          console.log('LOG AuthContext: loaded user', parsedUser);
+          console.log('💡 AuthContext loaded user:', parsedUser);
           setUserState(parsedUser);
         }
 
         if (rawManager) {
           const parsedManager = JSON.parse(rawManager);
-          console.log('LOG AuthContext: loaded manager', parsedManager);
+          console.log('💡 AuthContext loaded manager:', parsedManager);
           setManagerState(parsedManager);
         }
       } catch (err) {
@@ -60,7 +73,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadAuth();
   }, []);
 
-  const setUser = async (u: Record<string, any> | null) => {
+  // ✅ PERSISTANCE DU USER
+  const setUser = async (u: User) => {
     try {
       if (u) {
         await AsyncStorage.setItem('user', JSON.stringify(u));
@@ -73,11 +87,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserState(u);
   };
 
+  // ✅ PERSISTANCE DU MANAGER
   const setManager = async (m: Manager) => {
     try {
       if (m) {
         await AsyncStorage.setItem('manager', JSON.stringify(m));
-        console.log('LOG AuthContext: manager saved', m);
+        console.log('💡 AuthContext saved manager:', m);
       } else {
         await AsyncStorage.removeItem('manager');
       }
@@ -87,10 +102,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setManagerState(m);
   };
 
+  // 🚪 DÉCONNEXION COMPLÈTE
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('user');
-      await AsyncStorage.removeItem('manager');
+      await AsyncStorage.multiRemove(['user', 'manager']);
     } catch (err) {
       console.warn('AuthContext: error removing auth', err);
     } finally {
@@ -106,4 +121,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// --- HOOK PRATIQUE ---
 export const useAuth = () => useContext(AuthContext);

@@ -1,4 +1,3 @@
-// app/(tabs)/home.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -13,9 +12,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmotionItem from '../components/emotionItem';
 import { useAuth } from '../context/AuthContext';
-
+ 
 const { width } = Dimensions.get('window');
-
+ 
 // 🧱 Première série (Mood)
 const emotions1 = ['Super_Happy', 'Happy', 'Neutre', 'Depressed', 'Super_Depressed'];
 const gridImages1 = [
@@ -25,7 +24,7 @@ const gridImages1 = [
   require('../(tabs)/assets/Depressed.png'),
   require('../(tabs)/assets/Super_Depressed.png'),
 ];
-
+ 
 // 🧱 Deuxième série (Emotion)
 const emotions2 = [
   'Excité', 'Détendu', 'Fier', 'Optimiste', 'Heureux', 'Enthousiaste', 'Reconnaissant',
@@ -49,7 +48,7 @@ const gridImages2 = [
   require('../(tabs)/assets/Stressé.png'),
   require('../(tabs)/assets/Ennuyé.png'),
 ];
-
+ 
 // 🧱 Troisième série (Boissons)
 const drinks = [
   { key: 'Eau', label: 'Eau' },
@@ -67,97 +66,87 @@ const gridImages3 = [
   require('../(tabs)/assets/Soda.png'),
   require('../(tabs)/assets/Jus.png'),
 ];
-
+ 
 export default function HomeScreen() {
-  // 🧭 Récupération de l’utilisateur connecté depuis le context
   const { user } = useAuth();
   const utilisateur = user;
-  const utilisateurId = utilisateur?.idUtilisateur; // ✅ On utilise ton idUtilisateur
-
+ 
   const [selectedEmotion1, setSelectedEmotion1] = useState<number | null>(null);
   const [selectedEmotion2, setSelectedEmotion2] = useState<number[]>([]);
   const [selectedDrink, setSelectedDrink] = useState<number | null>(null);
   const [journalEntry, setJournalEntry] = useState<string>('');
-
+ 
   const sendSelectionToBackend = async () => {
-    if (!utilisateurId) {
+    if (!utilisateur?.Mail) {
       Alert.alert('❌ Erreur', 'Utilisateur non reconnu. Veuillez vous reconnecter.');
       return;
     }
-
-    // ✅ Convertir idUtilisateur → entier si c’est une chaîne
-    const idNumeric = typeof utilisateurId === 'string'
-      ? parseInt(utilisateurId.replace(/\D/g, ''), 10)
-      : utilisateurId;
-
-    if (isNaN(idNumeric)) {
-      Alert.alert('⚠️ Erreur', 'ID utilisateur invalide : ' + utilisateurId);
-      return;
-    }
-
-    if (
-      selectedEmotion1 === null &&
-      selectedEmotion2.length === 0 &&
-      selectedDrink === null &&
-      journalEntry.trim() === ''
-    ) {
-      Alert.alert('⚠️ Veuillez saisir ou sélectionner au moins une information avant de valider.');
-      return;
-    }
-
+ 
     try {
-      const dataToSend: any = {
+      // 1️⃣ Trouver l’utilisateur dans Strapi
+      const resUser = await fetch(
+        `http://10.109.253.112:1337/api/utilisateurs?filters[Mail][$eq]=${encodeURIComponent(utilisateur.Mail)}`
+      );
+      const jsonUser = await resUser.json();
+      console.log('👤 Utilisateur trouvé:', jsonUser);
+ 
+      if (!jsonUser?.data?.length) {
+        Alert.alert('❌ Erreur', 'Utilisateur introuvable sur Strapi.');
+        return;
+      }
+ 
+      const utilisateurId = jsonUser.data[0].id;
+      console.log('✅ ID utilisateur:', utilisateurId);
+ 
+      // 🕓 2️⃣ Ajout automatique de la date actuelle
+      const now = new Date();
+      const dateISO = now.toISOString(); // format ISO compatible Strapi
+ 
+      // 3️⃣ Création du mood avec liaison directe à l’utilisateur
+      const moodData: any = {
         data: {
-          utilisateur: idNumeric, // ✅ On envoie un ID numérique
+          utilisateur: utilisateurId,
+          Date: dateISO, // 🕓 ajoute la date de création
         },
       };
-
-      if (selectedEmotion1 !== null) dataToSend.data.Mood = emotions1[selectedEmotion1];
-      if (selectedEmotion2.length > 0) dataToSend.data.Emotion = selectedEmotion2.map(i => emotions2[i]);
-      if (selectedDrink !== null) dataToSend.data.Boisson = drinks[selectedDrink].key;
-      if (journalEntry.trim() !== '') dataToSend.data.Journal = journalEntry.trim();
-
-      console.log('🛰️ Données envoyées à Strapi :', dataToSend);
-
-      const response = await fetch('http://10.109.253.227:1337/api/moods', {
+      if (selectedEmotion1 !== null) moodData.data.Mood = emotions1[selectedEmotion1];
+      if (selectedEmotion2.length > 0) moodData.data.Emotion = selectedEmotion2.map(i => emotions2[i]);
+      if (selectedDrink !== null) moodData.data.Boisson = drinks[selectedDrink].key;
+      if (journalEntry.trim() !== '') moodData.data.Journal = journalEntry.trim();
+ 
+      console.log('🛰️ Données envoyées à Strapi:', moodData);
+ 
+      const moodRes = await fetch('http://10.109.253.112:1337/api/moods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(moodData),
       });
-
-      if (response.ok) {
-        Alert.alert('✅ Données enregistrées avec succès !');
+ 
+      const moodJson = await moodRes.json();
+      console.log('🆕 Nouveau mood créé:', moodJson);
+ 
+      if (moodRes.ok) {
+        Alert.alert('✅ Mood enregistré et lié à votre profil !');
         setSelectedEmotion1(null);
         setSelectedEmotion2([]);
         setSelectedDrink(null);
         setJournalEntry('');
       } else {
-        const errorText = await response.text();
-        console.error('Erreur Strapi :', errorText);
-        Alert.alert('⚠️ Erreur lors de l’envoi des données.');
+        console.error('⚠️ Erreur création mood:', moodJson);
+        Alert.alert('⚠️ Erreur lors de la création du mood.');
       }
     } catch (err) {
       console.error('Erreur réseau', err);
-      Alert.alert('❌ Impossible de se connecter au serveur Strapi.');
+      Alert.alert('❌ Impossible de contacter le serveur Strapi.');
     }
   };
-
-  const handlePress1 = (index: number) => setSelectedEmotion1(selectedEmotion1 === index ? null : index);
-  const handlePress2 = (index: number) => {
-    if (selectedEmotion2.includes(index)) {
-      setSelectedEmotion2(selectedEmotion2.filter(i => i !== index));
-    } else {
-      setSelectedEmotion2([...selectedEmotion2, index]);
-    }
-  };
-  const handlePress3 = (index: number) => setSelectedDrink(selectedDrink === index ? null : index);
-
+ 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Bienvenue {utilisateur?.Nom || 'Utilisateur'} 👋</Text>
-
-        {/* 🧱 Première section */}
+ 
+        {/* 🧱 Mood */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Quel Lilo êtes-vous ?</Text>
           <View style={styles.grid}>
@@ -166,7 +155,7 @@ export default function HomeScreen() {
                 key={`first-${i}`}
                 imgSource={img}
                 selected={selectedEmotion1 === i}
-                onPress={() => handlePress1(i)}
+                onPress={() => setSelectedEmotion1(selectedEmotion1 === i ? null : i)}
                 isRounded={false}
                 highlightColor="#3dbf86"
                 dimOthers={selectedEmotion1 !== null}
@@ -174,8 +163,8 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-
-        {/* 🧱 Deuxième section */}
+ 
+        {/* 🧱 Émotion */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Comment vous sentez-vous aujourd’hui ?</Text>
           <View style={styles.grid}>
@@ -184,15 +173,21 @@ export default function HomeScreen() {
                 key={`second-${i}`}
                 imgSource={img}
                 selected={selectedEmotion2.includes(i)}
-                onPress={() => handlePress2(i)}
+                onPress={() =>
+                  setSelectedEmotion2(
+                    selectedEmotion2.includes(i)
+                      ? selectedEmotion2.filter(x => x !== i)
+                      : [...selectedEmotion2, i]
+                  )
+                }
                 isRounded={true}
                 highlightColor="#3dbf86"
               />
             ))}
           </View>
         </View>
-
-        {/* 🧱 Troisième section */}
+ 
+        {/* 🧱 Boisson */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Quelle boisson avez-vous le plus bue ?</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.gridRow}>
@@ -201,7 +196,7 @@ export default function HomeScreen() {
                 key={`third-${i}`}
                 imgSource={img}
                 selected={selectedDrink === i}
-                onPress={() => handlePress3(i)}
+                onPress={() => setSelectedDrink(selectedDrink === i ? null : i)}
                 isRounded={false}
                 highlightColor="#3dbf86"
                 dimOthers={selectedDrink !== null}
@@ -209,7 +204,7 @@ export default function HomeScreen() {
             ))}
           </ScrollView>
         </View>
-
+ 
         {/* 🧱 Journal */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Avez-vous une anecdote à raconter ?</Text>
@@ -222,22 +217,25 @@ export default function HomeScreen() {
             onChangeText={setJournalEntry}
           />
         </View>
-
+ 
         <TouchableOpacity style={styles.button} onPress={sendSelectionToBackend}>
           <Text style={styles.buttonText}>Valider</Text>
         </TouchableOpacity>
-
-        <View style={{ height: 50 }} />
+ 
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
-
+ 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#ffffff' },
-  scroll: { paddingTop: 18, alignItems: 'center' },
+  scroll: {
+    paddingTop: 18,
+    alignItems: 'center',
+    paddingBottom: 120,
+  },
   title: { fontSize: 18, fontWeight: '700', marginBottom: 25, color: '#262524' },
-
   card: {
     width: width * 0.93,
     backgroundColor: '#e8e2deff',
@@ -275,11 +273,11 @@ const styles = StyleSheet.create({
     borderColor: '#b6b0ae',
   },
   button: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 40,
+    marginBottom: 60,
     backgroundColor: '#3dbf86',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
+    paddingVertical: 14,
+    paddingHorizontal: 50,
     borderRadius: 25,
     alignItems: 'center',
   },

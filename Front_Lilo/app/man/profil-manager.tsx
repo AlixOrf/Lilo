@@ -38,7 +38,7 @@ export default function ProfileManager() {
 
   useEffect(() => {
     // Remplace l'URL par celle de ton backend
-    fetch("http://10.109.253.232:1337/api/managers")
+    fetch("http://10.109.253.112:1337/api/managers")
       .then(res => res.json())
       .then(data => {
         if (data?.data?.length > 0) {
